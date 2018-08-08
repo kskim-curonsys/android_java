@@ -250,7 +250,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         finish();
     }
 
-    // Refresh UI's something to show
     private void updateUI(FirebaseUser user) {
         if (user == null) {
             return;

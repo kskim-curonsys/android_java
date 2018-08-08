@@ -1,6 +1,9 @@
 package com.curonsys.android_java;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,6 +21,9 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ChooseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -61,6 +67,8 @@ public class ChooseActivity extends AppCompatActivity
                 checkLogin();
             }
         });
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
     @Override
@@ -120,6 +128,11 @@ public class ChooseActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
             msg = "Send";
+            try {
+                doSignOut();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
 
@@ -131,13 +144,38 @@ public class ChooseActivity extends AppCompatActivity
         return true;
     }
 
+    private void updateUI(FirebaseUser user) throws IOException {
+        if (user == null || !user.isEmailVerified()) {
+            // default
+            mImageView.setImageResource(R.mipmap.ic_launcher_round);
+
+        } else {
+            // logged on
+            AssetManager am = getResources().getAssets();
+            InputStream is = null;
+
+            try {
+                is = am.open("lake.png");
+                if (is != null) {
+                    Bitmap bm = BitmapFactory.decodeStream(is);
+                    mImageView.setImageBitmap(bm);
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void checkLogin() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             goLoginStep();
+            return;
         }
         if (!user.isEmailVerified()) {
             goLoginStep();
+            return;
         }
 
         String hello = "Hi " + user.getEmail();
@@ -151,6 +189,25 @@ public class ChooseActivity extends AppCompatActivity
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
+    }
+
+    private void doSignOut() throws IOException {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) {
+            Snackbar.make(mImageView, "not logged on yet!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            return;
+        }
+        if (!user.isEmailVerified()) {
+            Snackbar.make(mImageView, "not logged on yet!!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            return;
+        }
+        String email = user.getEmail();
+        String saygoodbye = "Bye " + email + " : logged out.";
+        mAuth.signOut();
+
+        Snackbar.make(mImageView, saygoodbye, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+        // image change (user -> default)
     }
 
     private void goOption() {
