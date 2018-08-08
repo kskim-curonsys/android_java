@@ -1,0 +1,113 @@
+{
+  "project_info": {
+    "project_number": "514844055058",
+    "firebase_url": "https://aesthetic-guild-206002.firebaseio.com",
+    "project_id": "aesthetic-guild-206002",
+    "storage_bucket": "aesthetic-guild-206002.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514844055058:android:359eaeb81791031f",
+        "android_client_info": {
+          "package_name": "com.curonsys.android_java"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "514844055058-kn5cv59nkbcilkj5m7adrt0fijlvhil0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.curonsys.android_java",
+            "certificate_hash": "e8b5dc87ffc0552eb1b56b822154f87f4db3feb3"
+          }
+        },
+        {
+          "client_id": "514844055058-jledb5rnr20b3rv59ejpifd6l1s5g86k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtR7evZwmqKa955ABOMUVL64rwnixe_PA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "514844055058-jledb5rnr20b3rv59ejpifd6l1s5g86k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "514844055058-hfbq0g6snk1o6ednfo6c3udbosvf3s3n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.curonsys.FriendlyChatObjC"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514844055058:android:a68b220a1738471f",
+        "android_client_info": {
+          "package_name": "com.curonsys.armyflutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "514844055058-4q3dl9nu60ev07nt2nv66le5l6nbtjt5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.curonsys.armyflutter",
+            "certificate_hash": "e8b5dc87ffc0552eb1b56b822154f87f4db3feb3"
+          }
+        },
+        {
+          "client_id": "514844055058-jledb5rnr20b3rv59ejpifd6l1s5g86k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtR7evZwmqKa955ABOMUVL64rwnixe_PA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "514844055058-jledb5rnr20b3rv59ejpifd6l1s5g86k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "514844055058-hfbq0g6snk1o6ednfo6c3udbosvf3s3n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.curonsys.FriendlyChatObjC"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
