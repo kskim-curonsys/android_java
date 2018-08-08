@@ -111,7 +111,7 @@ public class ChooseActivity extends AppCompatActivity
         String msg = "";
 
         if (id == R.id.nav_camera) {
-            msg = "Import";
+            msg = "Camera";
 
         } else if (id == R.id.nav_gallery) {
             msg = "Gallery";
@@ -120,20 +120,16 @@ public class ChooseActivity extends AppCompatActivity
             msg = "Slideshow";
 
         } else if (id == R.id.nav_manage) {
-            msg = "Tools";
+            msg = "Options";
             goOption();
 
         } else if (id == R.id.nav_share) {
-            msg = "Share";
+            msg = "SignUp";
+            goSignupStep();
 
         } else if (id == R.id.nav_send) {
-            msg = "Send";
-            try {
-                doSignOut();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            msg = "Logout";
+            doSignOut();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -144,7 +140,7 @@ public class ChooseActivity extends AppCompatActivity
         return true;
     }
 
-    private void updateUI(FirebaseUser user) throws IOException {
+    private void updateUI(FirebaseUser user) {
         if (user == null || !user.isEmailVerified()) {
             // default
             mImageView.setImageResource(R.mipmap.ic_launcher_round);
@@ -191,7 +187,14 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
-    private void doSignOut() throws IOException {
+    private void goSignupStep() {
+        Intent intent = new Intent(this, SignupActivity.class);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void doSignOut() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             Snackbar.make(mImageView, "not logged on yet!", Snackbar.LENGTH_LONG).setAction("Action", null).show();

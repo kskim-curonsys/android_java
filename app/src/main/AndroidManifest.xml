@@ -70,6 +70,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
+        <activity
+            android:name=".SignupActivity"
+            android:label="@string/title_activity_signup"
+            android:parentActivityName=".ChooseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
+        </activity>
     </application>
 
 </manifest>
