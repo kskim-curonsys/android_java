@@ -24,9 +24,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".LoginActivity"
-            android:label="@string/app_name" />
-        <activity
             android:name=".ChooseActivity"
             android:label="@string/title_activity_choose"
             android:theme="@style/AppTheme.NoActionBar">
@@ -35,6 +32,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".ChooseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
         <activity
             android:name=".AccountActivity"
@@ -87,7 +92,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
-        <activity android:name=".ARCameraActivity"></activity>
+        <activity android:name=".ARCameraActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
+        </activity>
     </application>
 
 </manifest>

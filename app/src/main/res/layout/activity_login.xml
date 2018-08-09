@@ -86,11 +86,27 @@
         </LinearLayout>
     </ScrollView>
 
-    <TextView
-        android:id="@+id/login_comment"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/comment_sign_in"
-        android:layout_marginTop="16dp"/>
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/login_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/comment_sign_in"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:id="@+id/login_copyright"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/copyright_login"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+
 
 </LinearLayout>

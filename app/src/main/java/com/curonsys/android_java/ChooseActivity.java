@@ -1,10 +1,12 @@
 package com.curonsys.android_java;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -29,6 +31,11 @@ import eu.kudan.kudan.ARAPIKey;
 
 public class ChooseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final int MY_PERMISSION_STORAGE = 1;
+    private static final int REQUEST_TAKE_PHOTO = 2;
+    private static final int REQUEST_TAKE_ALBUM = 3;
+    private static final int REQUEST_IMAGE_CROP = 4;
 
     private ImageView mImageView;
     private FirebaseAuth mAuth;
@@ -80,6 +87,29 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_TAKE_PHOTO:
+                if (resultCode == Activity.RESULT_OK) {
+
+                } else {
+
+                }
+
+                break;
+
+            case REQUEST_TAKE_ALBUM:
+                if (resultCode == Activity.RESULT_OK) {
+
+                } else {
+
+                }
+
+                break;
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -120,13 +150,15 @@ public class ChooseActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             msg = "Camera";
-            goARCamera();
+            goCamera();
 
         } else if (id == R.id.nav_gallery) {
             msg = "Gallery";
+            goGallery();
 
         } else if (id == R.id.nav_slideshow) {
             msg = "Slideshow";
+            goARCamera();
 
         } else if (id == R.id.nav_manage) {
             msg = "Options";
@@ -241,5 +273,17 @@ public class ChooseActivity extends AppCompatActivity
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
+    }
+
+    private void goCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+    }
+
+    private void goGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+        startActivityForResult(intent, REQUEST_TAKE_ALBUM);
     }
 }
