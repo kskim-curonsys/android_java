@@ -84,7 +84,7 @@ public class ChooseActivity extends AppCompatActivity
 
             public void onDrawerOpened(View view) {
                 super.onDrawerOpened(view);
-                //updateUI();
+                updateUI();
             }
 
         };
@@ -229,6 +229,7 @@ public class ChooseActivity extends AppCompatActivity
                 if (is != null) {
                     Bitmap bm = BitmapFactory.decodeStream(is);
                     mTestImage.setImageBitmap(bm);
+                    mProfileImage.setImageBitmap(bm);
                     is.close();
                 }
             } catch (IOException e) {
@@ -237,6 +238,7 @@ public class ChooseActivity extends AppCompatActivity
 
         } else {
             mTestImage.setImageResource(R.mipmap.ic_launcher_round);
+            mProfileImage.setImageResource(R.mipmap.ic_launcher_round);
         }
     }
 
