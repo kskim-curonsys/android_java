@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
     private TextView mTitleView;
     private TextView mCommentView;
+    private TextView mCopyrightView;
 
     private FirebaseAuth mAuth;
 
@@ -63,6 +64,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mTitleView = (TextView) findViewById(R.id.login_title);
         mCommentView = (TextView) findViewById(R.id.login_comment);
+        mCopyrightView = (TextView) findViewById(R.id.login_copyright);
 
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -293,6 +295,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             });
             mTitleView.setVisibility(show ? View.GONE : View.VISIBLE);
             mCommentView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mCopyrightView.setVisibility(show ? View.GONE : View.VISIBLE);
 
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mProgressView.animate().setDuration(shortAnimTime).alpha(
@@ -307,6 +310,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
             mTitleView.setVisibility(show ? View.GONE : View.VISIBLE);
             mCommentView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mCopyrightView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 

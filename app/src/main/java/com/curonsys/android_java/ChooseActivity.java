@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -21,9 +23,15 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -37,8 +45,11 @@ public class ChooseActivity extends AppCompatActivity
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
 
-    private ImageView mImageView;
     private FirebaseAuth mAuth;
+    private FirebaseStorage mStorage;
+
+    private ImageView mProfileImage;
+    private ImageView mTestImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,25 +76,44 @@ public class ChooseActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                updateUI();
+            }
+
+            public void onDrawerOpened(View view) {
+                super.onDrawerOpened(view);
+                //updateUI();
+            }
+
+        };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         mAuth = FirebaseAuth.getInstance();
+        mStorage = FirebaseStorage.getInstance("gs://gce-storage-army");
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View header = navigationView.getHeaderView(0);
-        mImageView = (ImageView) header.findViewById(R.id.imageView);
-        mImageView.setOnClickListener(new View.OnClickListener() {
+        mProfileImage = (ImageView) header.findViewById(R.id.imageView);
+        mProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkLogin();
+                if (checkLogin()) {
+                    goAccount();
+                } else {
+                    goLoginStep();
+                }
             }
         });
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        mTestImage = (ImageView) findViewById(R.id.test_imageview);
+        updateUI();
     }
 
     @Override
@@ -168,6 +198,14 @@ public class ChooseActivity extends AppCompatActivity
             msg = "SignUp";
             goSignupStep();
 
+        } else if (id == R.id.nav_upload) {
+            msg = "Upload";
+            goTestUpload();
+
+        } else if (id == R.id.nav_download) {
+            msg = "Download";
+            goTestDownload();
+
         } else if (id == R.id.nav_send) {
             msg = "Logout";
             doSignOut();
@@ -176,18 +214,13 @@ public class ChooseActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
 
-        Snackbar.make(mImageView, msg, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(mProfileImage, msg, Snackbar.LENGTH_LONG).setAction("Action", null).show();
 
         return true;
     }
 
-    private void updateUI(FirebaseUser user) {
-        if (user == null || !user.isEmailVerified()) {
-            // default
-            mImageView.setImageResource(R.mipmap.ic_launcher_round);
-
-        } else {
-            // logged on
+    private void updateUI() {
+        if (checkLogin()) {
             AssetManager am = getResources().getAssets();
             InputStream is = null;
 
@@ -195,30 +228,25 @@ public class ChooseActivity extends AppCompatActivity
                 is = am.open("lake.png");
                 if (is != null) {
                     Bitmap bm = BitmapFactory.decodeStream(is);
-                    mImageView.setImageBitmap(bm);
+                    mTestImage.setImageBitmap(bm);
                     is.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+        } else {
+            mTestImage.setImageResource(R.mipmap.ic_launcher_round);
         }
     }
 
-    private void checkLogin() {
+    private boolean checkLogin() {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) {
-            goLoginStep();
-            return;
-        }
-        if (!user.isEmailVerified()) {
-            goLoginStep();
-            return;
+        if (user == null || !user.isEmailVerified()) {
+            return false;
         }
 
-        String hello = "Hi " + user.getEmail();
-        Snackbar.make(mImageView, hello, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-        goAccount();
+        return true;
     }
 
     private void goLoginStep() {
@@ -236,22 +264,13 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void doSignOut() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) {
-            Snackbar.make(mImageView, "not logged on yet!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            return;
+        if (checkLogin()) {
+            mAuth.signOut();
+            Snackbar.make(mProfileImage, "Logout Success.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            updateUI();
+        } else {
+            Snackbar.make(mProfileImage, "You are not logged in.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
-        if (!user.isEmailVerified()) {
-            Snackbar.make(mImageView, "not logged on yet!!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            return;
-        }
-        String email = user.getEmail();
-        String saygoodbye = "Bye " + email + " : logged out.";
-        mAuth.signOut();
-
-        Snackbar.make(mImageView, saygoodbye, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
-        // image change (user -> default)
     }
 
     private void goOption() {
@@ -285,5 +304,39 @@ public class ChooseActivity extends AppCompatActivity
         intent.setType("image/*");
         intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
         startActivityForResult(intent, REQUEST_TAKE_ALBUM);
+    }
+
+    private void goTestUpload() {
+        if (checkLogin()) {
+            StorageReference storageRef = mStorage.getReference("images/lake.png");
+
+            mTestImage.setDrawingCacheEnabled(true);
+            mTestImage.buildDrawingCache();
+            Bitmap bitmap = ((BitmapDrawable) mTestImage.getDrawable()).getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            UploadTask uploadTask = storageRef.putBytes(data);
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                    Snackbar.make(mProfileImage, "Storage Upload Failed !!!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    Snackbar.make(mProfileImage, "Storage Upload Success.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                }
+            });
+        } else {
+            Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
+    }
+
+    private void goTestDownload() {
+
     }
 }
