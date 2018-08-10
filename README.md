@@ -1,2 +1,2 @@
 # android_java
-test java modules
+test android project
