@@ -1,4 +1,4 @@
-package com.curonsys.android_java;
+package com.curonsys.android_java.activity;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -21,6 +21,8 @@ import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
 import java.util.List;
+
+import com.curonsys.android_java.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On

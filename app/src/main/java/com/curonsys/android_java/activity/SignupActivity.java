@@ -1,4 +1,4 @@
-package com.curonsys.android_java;
+package com.curonsys.android_java.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -39,6 +39,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.curonsys.android_java.R;
 
 import static android.Manifest.permission.READ_CONTACTS;
 

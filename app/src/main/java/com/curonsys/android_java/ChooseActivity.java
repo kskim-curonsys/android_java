@@ -21,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,6 +38,9 @@ import java.io.InputStream;
 
 import eu.kudan.kudan.ARAPIKey;
 
+import com.curonsys.android_java.activity.*;
+import com.curonsys.android_java.utils.PermissionManager;
+
 public class ChooseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -48,8 +52,10 @@ public class ChooseActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private FirebaseStorage mStorage;
 
-    private ImageView mProfileImage;
     private ImageView mTestImage;
+    private ImageView mProfileImage;
+    private TextView mProfileName;
+    private TextView mProfileEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +99,7 @@ public class ChooseActivity extends AppCompatActivity
 
         mAuth = FirebaseAuth.getInstance();
         mStorage = FirebaseStorage.getInstance("gs://gce-storage-army");
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -104,13 +111,15 @@ public class ChooseActivity extends AppCompatActivity
             public void onClick(View v) {
                 if (checkLogin()) {
                     goAccount();
+                    closeDrawer();
                 } else {
                     goLoginStep();
+                    closeDrawer();
                 }
             }
         });
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        mProfileName = (TextView) header.findViewById(R.id.profile_name);
+        mProfileEmail = (TextView) header.findViewById(R.id.profile_email);
 
         mTestImage = (ImageView) findViewById(R.id.test_imageview);
         updateUI();
@@ -121,8 +130,12 @@ public class ChooseActivity extends AppCompatActivity
         switch (requestCode) {
             case REQUEST_TAKE_PHOTO:
                 if (resultCode == Activity.RESULT_OK) {
+                    // setInputImage()
+                    // cropImage()
+                    // start crop activity
 
                 } else {
+                    // cancel
 
                 }
 
@@ -130,6 +143,31 @@ public class ChooseActivity extends AppCompatActivity
 
             case REQUEST_TAKE_ALBUM:
                 if (resultCode == Activity.RESULT_OK) {
+                    // getData()
+                    // setPhotoURI()
+                    // setInputImage()
+
+                    // cropImage()
+                    // start crop activity
+
+                } else {
+
+                }
+
+                break;
+
+            case REQUEST_IMAGE_CROP:
+                if (resultCode == Activity.RESULT_OK) {
+                    // galleryAddPic()
+                    // getAlbumURI()
+                    // setImageURI()
+
+                    // DBManager
+                    // - imageURI
+                    // - generatorId
+
+                    // getBitmap()
+                    // CheckingAsyncTask.execute()
 
                 } else {
 
@@ -176,47 +214,45 @@ public class ChooseActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        String msg = "";
 
         if (id == R.id.nav_camera) {
-            msg = "Camera";
             goCamera();
 
         } else if (id == R.id.nav_gallery) {
-            msg = "Gallery";
             goGallery();
 
-        } else if (id == R.id.nav_slideshow) {
-            msg = "Slideshow";
+        } else if (id == R.id.nav_arcamera) {
             goARCamera();
 
-        } else if (id == R.id.nav_manage) {
-            msg = "Options";
+        } else if (id == R.id.nav_options) {
             goOption();
 
-        } else if (id == R.id.nav_share) {
-            msg = "SignUp";
+        } else if (id == R.id.nav_signup) {
             goSignupStep();
 
         } else if (id == R.id.nav_upload) {
-            msg = "Upload";
             goTestUpload();
 
         } else if (id == R.id.nav_download) {
-            msg = "Download";
             goTestDownload();
 
-        } else if (id == R.id.nav_send) {
-            msg = "Logout";
+        } else if (id == R.id.nav_gettest) {
+            goTestGet();
+
+        } else if (id == R.id.nav_posttest) {
+            goTestPost();
+
+        } else if (id == R.id.nav_logout) {
             doSignOut();
         }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-
-        Snackbar.make(mProfileImage, msg, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        closeDrawer();
 
         return true;
+    }
+
+    private void closeDrawer() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
     }
 
     private void updateUI() {
@@ -231,6 +267,12 @@ public class ChooseActivity extends AppCompatActivity
                     mTestImage.setImageBitmap(bm);
                     mProfileImage.setImageBitmap(bm);
                     is.close();
+
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    String email = currentUser.getEmail();
+                    String name = email.substring(0, email.indexOf('@'));
+                    mProfileName.setText(name);
+                    mProfileEmail.setText(email);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -239,6 +281,8 @@ public class ChooseActivity extends AppCompatActivity
         } else {
             mTestImage.setImageResource(R.mipmap.ic_launcher_round);
             mProfileImage.setImageResource(R.mipmap.ic_launcher_round);
+            mProfileName.setText("Android Studio");
+            mProfileEmail.setText("android.studio@android.com");
         }
     }
 
@@ -247,7 +291,6 @@ public class ChooseActivity extends AppCompatActivity
         if (user == null || !user.isEmailVerified()) {
             return false;
         }
-
         return true;
     }
 
@@ -339,6 +382,14 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestDownload() {
+
+    }
+
+    private void goTestGet() {
+
+    }
+
+    private void goTestPost() {
 
     }
 }

@@ -1,4 +1,4 @@
-package com.curonsys.android_java;
+package com.curonsys.android_java.utils;
 
 /**
  * Created by ijin-yeong on 2018. 5. 16..
@@ -22,7 +22,7 @@ public class PermissionManager {
     private Context context;
     private ArrayList<String> permission_check_list = new ArrayList<>();
 
-    PermissionManager(Context context){
+    public PermissionManager(Context context){
         this.context = context;
 
         //PUT YOUR PERMISSION LIST!!

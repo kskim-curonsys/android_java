@@ -1,4 +1,4 @@
-package com.curonsys.android_java;
+package com.curonsys.android_java.activity;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

@@ -13,11 +13,11 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="Gallery" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_arcamera"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:title="ARCamera" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_options"
             android:icon="@drawable/ic_menu_manage"
             android:title="Options" />
     </group>
@@ -33,11 +33,24 @@
                 android:icon="@drawable/ic_menu_share"
                 android:title="Download" />
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_gettest"
+                android:icon="@drawable/ic_menu_share"
+                android:title="GET" />
+            <item
+                android:id="@+id/nav_posttest"
+                android:icon="@drawable/ic_menu_share"
+                android:title="POST" />
+        </menu>
+    </item>
+
+    <item android:title="Sign">
+        <menu>
+            <item
+                android:id="@+id/nav_signup"
                 android:icon="@drawable/ic_info_black_24dp"
                 android:title="SignUp" />
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_menu_send"
                 android:title="Logout" />
         </menu>
