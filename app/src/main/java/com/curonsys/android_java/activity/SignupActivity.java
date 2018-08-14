@@ -195,20 +195,36 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signUpWithEmail:success");
-                            Toast.makeText(SignupActivity.this, "Registration success.",
-                                    Toast.LENGTH_SHORT).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
-                            nextStep();
+                            //Toast.makeText(SignupActivity.this, "Registration success.", Toast.LENGTH_SHORT).show();
+                            sendEmailVerification();
+                            //nextStep();
                         } else {
                             Log.w(TAG, "signUpWithEmail:failure", task.getException());
-                            Toast.makeText(SignupActivity.this, "Registration failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignupActivity.this, "Registration failed.", Toast.LENGTH_SHORT).show();
                         }
                         showProgress(false);
                     }
                 });
         //Snackbar.make(mEmailView, "SignUp Try", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
+
+    private void sendEmailVerification() {
+        final FirebaseUser user = mAuth.getCurrentUser();
+        user.sendEmailVerification()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(SignupActivity.this, "Verification email sent to " + user.getEmail(),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "sendEmailVerification", task.getException());
+                            Toast.makeText(SignupActivity.this, "Failed to send verification email.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        nextStep();
+                    }
+                });
     }
 
     private void nextStep() {

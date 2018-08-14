@@ -98,7 +98,7 @@ public class ChooseActivity extends AppCompatActivity
         toggle.syncState();
 
         mAuth = FirebaseAuth.getInstance();
-        mStorage = FirebaseStorage.getInstance("gs://gce-storage-army");
+        mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");   // ("gs://gce-storage-army");
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -270,8 +270,9 @@ public class ChooseActivity extends AppCompatActivity
 
                     FirebaseUser currentUser = mAuth.getCurrentUser();
                     String email = currentUser.getEmail();
-                    String name = email.substring(0, email.indexOf('@'));
-                    mProfileName.setText(name);
+                    //String name = email.substring(0, email.indexOf('@'));
+                    String uid = currentUser.getUid();
+                    mProfileName.setText(uid);
                     mProfileEmail.setText(email);
                 }
             } catch (IOException e) {
