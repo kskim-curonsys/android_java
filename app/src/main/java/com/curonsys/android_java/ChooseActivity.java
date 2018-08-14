@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -50,6 +51,7 @@ public class ChooseActivity extends AppCompatActivity
     private static final int REQUEST_IMAGE_CROP = 4;
 
     private FirebaseAuth mAuth;
+    private FirebaseFirestore mFirestore;
     private FirebaseStorage mStorage;
 
     private ImageView mTestImage;
@@ -98,6 +100,7 @@ public class ChooseActivity extends AppCompatActivity
         toggle.syncState();
 
         mAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
         mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");   // ("gs://gce-storage-army");
         FirebaseUser currentUser = mAuth.getCurrentUser();
 

@@ -97,6 +97,24 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
+        <activity
+            android:name=".ItemListActivity"
+            android:label="@string/title_item_list"
+            android:parentActivityName=".ChooseActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
+        </activity>
+        <activity
+            android:name=".ItemDetailActivity"
+            android:label="@string/title_item_detail"
+            android:parentActivityName=".ItemListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ItemListActivity" />
+        </activity>
     </application>
 
 </manifest>
