@@ -323,7 +323,8 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goOption() {
-        Intent intent = new Intent(this, AccountActivity.class);
+        //Intent intent = new Intent(this, AccountActivity.class);
+        Intent intent = new Intent(this, ItemListActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
