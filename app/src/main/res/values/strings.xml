@@ -30,8 +30,8 @@
     <string name="title_activity_account">Options</string>
 
     <string name="copyright_login">Copyright @ 2018 Curonsys.</string>
-
     <string name="test_description">test image</string>
+    <string name="test_result">test result\ntest file : lake.png\nfile url : /models/helicopter/helicopter.jet</string>
 
     <!-- Strings related to Settings -->
 

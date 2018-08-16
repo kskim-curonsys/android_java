@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -53,11 +54,13 @@ public class ChooseActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private FirebaseStorage mStorage;
+    private FirebaseAnalytics mAnalytics;
 
     private ImageView mTestImage;
     private ImageView mProfileImage;
     private TextView mProfileName;
     private TextView mProfileEmail;
+    private TextView mTestResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,9 +102,11 @@ public class ChooseActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
         mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");   // ("gs://gce-storage-army");
+        mAnalytics = FirebaseAnalytics.getInstance(this);
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -125,6 +130,7 @@ public class ChooseActivity extends AppCompatActivity
         mProfileEmail = (TextView) header.findViewById(R.id.profile_email);
 
         mTestImage = (ImageView) findViewById(R.id.test_imageview);
+        mTestResult = (TextView) findViewById(R.id.test_textview);
         updateUI();
     }
 
@@ -299,6 +305,13 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goLoginStep() {
+        // analytics log event test
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "R.id.imageView");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Profile Image");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
+        mAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
         Intent intent = new Intent(this, LoginActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
@@ -324,6 +337,7 @@ public class ChooseActivity extends AppCompatActivity
 
     private void goOption() {
         //Intent intent = new Intent(this, AccountActivity.class);
+        //Intent intent = new Intent(this, MyaccountActivity.class);
         Intent intent = new Intent(this, ItemListActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
@@ -379,8 +393,17 @@ public class ChooseActivity extends AppCompatActivity
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     Snackbar.make(mProfileImage, "Storage Upload Success.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+                    // test result
+                    String result = "Upload Success." + "\n" +
+                            "file url : images/lake.png" + "\n" +
+                            "file size : " + data.length;
+                    mTestResult.setText(result);
                 }
             });
+
+            // test: uploaded info.
+
         } else {
             Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
