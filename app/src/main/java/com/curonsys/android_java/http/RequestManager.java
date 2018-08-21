@@ -3,6 +3,9 @@ package com.curonsys.android_java.http;
 import android.graphics.Bitmap;
 import android.widget.Toast;
 
+import com.curonsys.android_java.model.ContentModel;
+import com.curonsys.android_java.model.ContentsListModel;
+import com.curonsys.android_java.model.MarkerModel;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -14,6 +17,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -38,6 +42,18 @@ public class RequestManager {
 
     public interface StringResponseCallback{
         public void onResponse(String success);
+    }
+
+    public interface ContentsListCallback {
+        public void onResponse(ContentsListModel success);
+    }
+
+    public interface ContentCallback {
+        public void onResponse(ContentModel success);
+    }
+
+    public interface MarkerCallback {
+        public void onResponse(MarkerModel success);
     }
 
     // generate func define.
@@ -182,10 +198,26 @@ public class RequestManager {
                 */
             }
         });
-
-
     }
 
+    public ArrayList<ContentsListModel> getContentsList(String userid, final ContentsListCallback callback) {
+        //
 
+        ArrayList<ContentsListModel> data = new ArrayList<ContentsListModel>();
+        return data;
+    }
 
+    public ContentModel getContentInfo(String contentid, final ContentCallback callback) {
+        //
+
+        ContentModel model = new ContentModel();
+        return model;
+    }
+
+    public MarkerModel getMarkerInfo(final MarkerCallback callback) {
+        //
+
+        MarkerModel model = new MarkerModel();
+        return model;
+    }
 }
