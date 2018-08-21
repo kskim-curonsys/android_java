@@ -1,4 +1,4 @@
-package com.curonsys.android_java;
+package com.curonsys.android_java.activity;
 
 import android.app.Activity;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.curonsys.android_java.dummy.DummyContent;
+import com.curonsys.android_java.R;
+
 
 /**
  * A fragment representing a single Item detail screen.

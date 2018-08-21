@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -62,6 +63,24 @@ public class ChooseActivity extends AppCompatActivity
     private TextView mProfileEmail;
     private TextView mTestResult;
 
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    return true;
+                case R.id.navigation_dashboard:
+                    return true;
+                case R.id.navigation_notifications:
+                    return true;
+            }
+            return false;
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +94,9 @@ public class ChooseActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottomnavigation);
+        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -101,7 +123,6 @@ public class ChooseActivity extends AppCompatActivity
         };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
 
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
@@ -246,10 +267,10 @@ public class ChooseActivity extends AppCompatActivity
             goTestDownload();
 
         } else if (id == R.id.nav_gettest) {
-            goTestGet();
+            goTestGetList();
 
         } else if (id == R.id.nav_posttest) {
-            goTestPost();
+            goTestGetContent();
 
         } else if (id == R.id.nav_logout) {
             doSignOut();
@@ -338,7 +359,8 @@ public class ChooseActivity extends AppCompatActivity
     private void goOption() {
         //Intent intent = new Intent(this, AccountActivity.class);
         //Intent intent = new Intent(this, MyaccountActivity.class);
-        Intent intent = new Intent(this, ItemListActivity.class);
+        //Intent intent = new Intent(this, ItemListActivity.class);
+        Intent intent = new Intent(this, ScrollingActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
@@ -410,14 +432,15 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestDownload() {
+        // download from storage
 
     }
 
-    private void goTestGet() {
+    private void goTestGetList() {
 
     }
 
-    private void goTestPost() {
+    private void goTestGetContent() {
 
     }
 }

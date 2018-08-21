@@ -1,4 +1,4 @@
-package com.curonsys.android_java;
+package com.curonsys.android_java.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +18,8 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.curonsys.android_java.dummy.DummyContent;
+import com.curonsys.android_java.R;
+
 
 import java.util.List;
 

@@ -98,7 +98,7 @@
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
         <activity
-            android:name=".ItemListActivity"
+            android:name=".activity.ItemListActivity"
             android:label="@string/title_item_list"
             android:parentActivityName=".ChooseActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -107,13 +107,22 @@
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
         <activity
-            android:name=".ItemDetailActivity"
+            android:name=".activity.ItemDetailActivity"
             android:label="@string/title_item_detail"
-            android:parentActivityName=".ItemListActivity"
+            android:parentActivityName=".activity.ItemListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.curonsys.android_java.ItemListActivity" />
+                android:value="com.curonsys.android_java.activity.ItemListActivity" />
+        </activity>
+        <activity
+            android:name=".ScrollingActivity"
+            android:label="@string/title_activity_scrolling"
+            android:parentActivityName=".ChooseActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
     </application>
 
