@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -91,6 +92,7 @@ public class ChooseActivity extends AppCompatActivity
     private TextView mProfileName;
     private TextView mProfileEmail;
     private TextView mTestResult;
+    private Button mTestLocation;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -248,6 +250,16 @@ public class ChooseActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+        mTestLocation = (Button) findViewById(R.id.choose_location_btn);
+        mTestLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("test", "onClick Test Location:");
+
+                testLocation();
+            }
+        });
+
         /*
         mMaterialBuilder = new MaterialDialog.Builder(this)
                 .title("위치 수신중")
@@ -258,6 +270,31 @@ public class ChooseActivity extends AppCompatActivity
         */
 
         updateUI();
+    }
+
+    private void testLocation() {
+        try {
+            mFusedLocationProviderClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                // Logic to handle location object
+
+                                double latitude = location.getLatitude();
+                                double longitude = location.getLongitude();
+
+                                mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n\n";
+                                mTestResult.setText(mOutput);
+
+                            }
+                        }
+                    });
+
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
