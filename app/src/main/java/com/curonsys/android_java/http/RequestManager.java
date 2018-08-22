@@ -220,4 +220,10 @@ public class RequestManager {
         MarkerModel model = new MarkerModel();
         return model;
     }
+
+    //public MarkerListModel getMarkerList(final MarkerListCallback callback) {
+    // Query
+    //}
+
+    // location
 }

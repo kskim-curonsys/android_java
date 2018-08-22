@@ -1,17 +1,23 @@
 package com.curonsys.android_java;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,6 +31,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.curonsys.android_java.utils.DBManager;
+import com.curonsys.android_java.utils.LocationUtil;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -44,6 +59,10 @@ import eu.kudan.kudan.ARAPIKey;
 import com.curonsys.android_java.activity.*;
 import com.curonsys.android_java.utils.PermissionManager;
 
+import static com.curonsys.android_java.utils.LocationUtil.distanceFrom;
+import static com.curonsys.android_java.utils.LocationUtil.latitudeInDifference;
+import static com.curonsys.android_java.utils.LocationUtil.longitudeInDifference;
+
 public class ChooseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -52,10 +71,20 @@ public class ChooseActivity extends AppCompatActivity
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
 
+    private String mOutput;
+
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private FirebaseStorage mStorage;
     private FirebaseAnalytics mAnalytics;
+
+    private GoogleMap mGoogleMap;
+    private LocationManager mLocationManager;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private DBManager mDBManager = DBManager.getInstance();
+
+    private MaterialDialog mMaterialDialog = null;
+    private MaterialDialog.Builder mMaterialBuilder = null;
 
     private ImageView mTestImage;
     private ImageView mProfileImage;
@@ -80,6 +109,58 @@ public class ChooseActivity extends AppCompatActivity
         }
     };
 
+    private final LocationListener mLocationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            double longitude = location.getLongitude(); //경도
+            double latitude = location.getLatitude();   //위도
+            //double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
+            //mMaterialDialog.dismiss();
+
+            LatLng currentLocation = new LatLng(latitude,longitude);
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(currentLocation);
+            markerOptions.title("현재 위치");
+            markerOptions.snippet("ARZone");
+            //mGoogleMap.addMarker(markerOptions);
+            //mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
+            //mLocationManager.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
+            mDBManager.markerLatitude = latitude;
+            mDBManager.markerLongtitude = longitude;
+
+            double testlat = 34.947773;
+            double testlon = 127.687474;
+            double testdist = distanceFrom(latitude, longitude, testlat, testlon);
+
+            double difflat = latitudeInDifference(500);
+            double difflon = longitudeInDifference(latitude, 500);
+
+            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "\n\n";
+            mTestResult.setText(mOutput);
+
+            Log.d("test", "Current Latitude: " + latitude);
+            Log.d("test", "Current Longitude: " + longitude);
+            Log.d("test", "Distance From: " + testdist + "m");
+            // lat, lon : 상하, 좌우
+            // ++(우상), +-(좌상), -+(우하), --(좌하)
+            Log.d("test", "Latitude in Difference: " + (latitude - difflat));
+            Log.d("test", "Longitude in Difference: " + (longitude - difflon));
+        }
+
+        public void onProviderDisabled(String provider) {
+            // Disabled시
+            Log.d("test", "onProviderDisabled, provider:" + provider);
+        }
+
+        public void onProviderEnabled(String provider) {
+            // Enabled시
+            Log.d("test", "onProviderEnabled, provider:" + provider);
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // 변경시
+            Log.d("test", "onStatusChanged, provider:" + provider + ", status:" + status + " ,Bundle:" + extras);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +233,30 @@ public class ChooseActivity extends AppCompatActivity
 
         mTestImage = (ImageView) findViewById(R.id.test_imageview);
         mTestResult = (TextView) findViewById(R.id.test_textview);
+        mTestResult.setMovementMethod(new ScrollingMovementMethod());
+
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        try {
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    100, 1, mLocationListener);
+
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                    100, 1, mLocationListener);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+
+        /*
+        mMaterialBuilder = new MaterialDialog.Builder(this)
+                .title("위치 수신중")
+                .content("현재 위치를 확인중입니다...")
+                .progress(true, 0);
+        mMaterialDialog = mMaterialBuilder.build();
+        mMaterialDialog.show();
+        */
+
         updateUI();
     }
 

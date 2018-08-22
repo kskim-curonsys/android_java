@@ -60,6 +60,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:17.1.0'
 
     implementation 'com.facebook.android:facebook-login:4.35.0'
+    implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
 
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
