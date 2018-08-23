@@ -7,10 +7,13 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -33,6 +36,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.curonsys.android_java.service.FetchAddressIntentService;
+import com.curonsys.android_java.utils.Constants;
 import com.curonsys.android_java.utils.DBManager;
 import com.curonsys.android_java.utils.LocationUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -79,6 +84,7 @@ public class ChooseActivity extends AppCompatActivity
 
     private boolean mLocationUpdateState = false;
     private String mOutput = "";
+    private String mAddressOutput = "";
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
@@ -98,8 +104,41 @@ public class ChooseActivity extends AppCompatActivity
     private TextView mProfileName;
     private TextView mProfileEmail;
     private TextView mTestResult;
+    private TextView mAddressResult;
     private Button mTestLocation;
     private Button mStopLocation;
+
+    class AddressResultReceiver extends ResultReceiver {
+
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultData == null) {
+                return;
+            }
+
+            // Display the address string
+            // or an error message sent from the intent service.
+            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+            if (mAddressOutput == null) {
+                mAddressOutput = "";
+            }
+            //displayAddressOutput();
+
+            // Show a toast message if an address was found.
+            if (resultCode == Constants.SUCCESS_RESULT) {
+                //showToast(getString(R.string.address_found));
+            }
+
+            updateUI();
+        }
+    }
+
+    protected Location mLastLocation = null;
+    private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -242,6 +281,7 @@ public class ChooseActivity extends AppCompatActivity
         mTestImage = (ImageView) findViewById(R.id.test_imageview);
         mTestResult = (TextView) findViewById(R.id.test_textview);
         mTestResult.setMovementMethod(new ScrollingMovementMethod());
+        mAddressResult = (TextView) findViewById(R.id.address_textview);
 
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -252,7 +292,24 @@ public class ChooseActivity extends AppCompatActivity
             public void onClick(View v) {
                 Log.d("test", "onClick Test Location:");
 
-                testLocation();
+                getLastLocation();   // get last location
+                // In some rare cases the location returned can be null
+                if (mLastLocation == null) {
+                    return;
+                }
+
+                if (!Geocoder.isPresent()) {
+                    Toast.makeText(ChooseActivity.this,
+                            R.string.no_geocoder_available,
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // Start service and update UI to reflect new location
+                Log.d("test", "onClick startIntentService:");
+                startIntentService();
+                Log.d("test", "onClick updateUI:");
+                updateUI();
             }
         });
 
@@ -268,6 +325,7 @@ public class ChooseActivity extends AppCompatActivity
 
         //  start location update
         startLocationUpdate();
+        getLastLocation();
         updateUI();
 
         mMaterialBuilder = new MaterialDialog.Builder(this)
@@ -298,6 +356,13 @@ public class ChooseActivity extends AppCompatActivity
         outState.putString("LOCATION_HISTORY", mOutput);
 
         super.onSaveInstanceState(outState);
+    }
+
+    protected void startIntentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+        startService(intent);
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
@@ -336,7 +401,7 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
-    private void testLocation() {
+    private void getLastLocation() {
         try {
             mFusedLocationProviderClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
@@ -345,6 +410,7 @@ public class ChooseActivity extends AppCompatActivity
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
                                 // Logic to handle location object
+                                mLastLocation = location;
 
                                 double latitude = location.getLatitude();
                                 double longitude = location.getLongitude();
@@ -522,6 +588,7 @@ public class ChooseActivity extends AppCompatActivity
         }
 
         mTestResult.setText(mOutput);
+        mAddressResult.setText(mAddressOutput);
     }
 
     private boolean checkLogin() {

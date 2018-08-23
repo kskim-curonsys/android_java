@@ -124,6 +124,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
+        <service
+            android:name=".service.FetchAddressIntentService"
+            android:exported="false"/>
+        <service android:name=".service.GeofenceTransitionsIntentService" />
+        
     </application>
 
 </manifest>

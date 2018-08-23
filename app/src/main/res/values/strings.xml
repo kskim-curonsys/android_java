@@ -36,6 +36,12 @@
     <string name="choose_location_test">Get Last</string>
     <string name="choose_location_stop">Stop</string>
 
+    <string name="service_not_available">The background geocoding service is not available due to a network error or IO exception.</string>
+    <string name="invalid_lat_long_used">The latitude and/or longitude values that are provided in the Location object are invalid.</string>
+    <string name="no_address_found">The geocoder cannot find an address for the given latitude/longitude.</string>
+    <string name="address_found">The geocoder found an address.</string>
+    <string name="no_geocoder_available">The background geocoding service is not available due to a network error or IO exception.</string>
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
