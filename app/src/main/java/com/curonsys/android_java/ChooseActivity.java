@@ -268,7 +268,6 @@ public class ChooseActivity extends AppCompatActivity
 
         //  start location update
         startLocationUpdate();
-
         updateUI();
 
         mMaterialBuilder = new MaterialDialog.Builder(this)
@@ -277,6 +276,43 @@ public class ChooseActivity extends AppCompatActivity
                 .progress(true, 0);
         mMaterialDialog = mMaterialBuilder.build();
         mMaterialDialog.show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdate();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mLocationUpdateState) {
+            startLocationUpdate();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("LOCATION_UPDATE_STATE", mLocationUpdateState);
+        outState.putString("LOCATION_HISTORY", mOutput);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+
+        if (savedInstanceState.keySet().contains("LOCATION_UPDATE_STATE")) {
+            mLocationUpdateState = savedInstanceState.getBoolean("LOCATION_UPDATE_STATE");
+        }
+        if (savedInstanceState.keySet().contains("LOCATION_HISTORY")) {
+            mOutput = savedInstanceState.getString("LOCATION_HISTORY");
+        }
+
+        updateUI();
     }
 
     private void startLocationUpdate() {
@@ -315,7 +351,6 @@ public class ChooseActivity extends AppCompatActivity
 
                                 mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n\n";
                                 mTestResult.setText(mOutput);
-
                             }
                         }
                     });
@@ -485,6 +520,8 @@ public class ChooseActivity extends AppCompatActivity
             mProfileName.setText("Android Studio");
             mProfileEmail.setText("android.studio@android.com");
         }
+
+        mTestResult.setText(mOutput);
     }
 
     private boolean checkLogin() {
