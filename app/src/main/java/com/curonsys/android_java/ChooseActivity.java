@@ -35,7 +35,12 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.utils.DBManager;
 import com.curonsys.android_java.utils.LocationUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -72,7 +77,8 @@ public class ChooseActivity extends AppCompatActivity
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
 
-    private String mOutput;
+    private boolean mLocationUpdateState = false;
+    private String mOutput = "";
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
@@ -93,6 +99,7 @@ public class ChooseActivity extends AppCompatActivity
     private TextView mProfileEmail;
     private TextView mTestResult;
     private Button mTestLocation;
+    private Button mStopLocation;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -116,7 +123,7 @@ public class ChooseActivity extends AppCompatActivity
             double longitude = location.getLongitude(); //경도
             double latitude = location.getLatitude();   //위도
             //double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
-            //mMaterialDialog.dismiss();
+            mMaterialDialog.dismiss();
 
             LatLng currentLocation = new LatLng(latitude,longitude);
             MarkerOptions markerOptions = new MarkerOptions();
@@ -202,7 +209,6 @@ public class ChooseActivity extends AppCompatActivity
                 super.onDrawerOpened(view);
                 updateUI();
             }
-
         };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
@@ -240,16 +246,6 @@ public class ChooseActivity extends AppCompatActivity
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        try {
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    100, 1, mLocationListener);
-
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    100, 1, mLocationListener);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        }
-
         mTestLocation = (Button) findViewById(R.id.choose_location_btn);
         mTestLocation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -260,16 +256,48 @@ public class ChooseActivity extends AppCompatActivity
             }
         });
 
-        /*
+        mStopLocation = (Button) findViewById(R.id.choose_location_stop);
+        mStopLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("test", "onClick Stop Location:");
+
+                stopLocationUpdate();
+            }
+        });
+
+        //  start location update
+        startLocationUpdate();
+
+        updateUI();
+
         mMaterialBuilder = new MaterialDialog.Builder(this)
                 .title("위치 수신중")
                 .content("현재 위치를 확인중입니다...")
                 .progress(true, 0);
         mMaterialDialog = mMaterialBuilder.build();
         mMaterialDialog.show();
-        */
+    }
 
-        updateUI();
+    private void startLocationUpdate() {
+        try {
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    100, 1, mLocationListener);
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                    100, 1, mLocationListener);
+            mLocationUpdateState = true;
+
+        } catch (SecurityException e) {
+            mLocationUpdateState = false;
+            e.printStackTrace();
+        }
+    }
+
+    private void stopLocationUpdate() {
+        if (mLocationUpdateState) {
+            mLocationManager.removeUpdates(mLocationListener);
+            mLocationUpdateState = false;
+        }
     }
 
     private void testLocation() {

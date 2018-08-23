@@ -47,12 +47,25 @@
             android:scrollbars = "vertical"
             android:layout_marginTop="16dp" />
 
-        <Button
-            android:id="@+id/choose_location_btn"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/choose_location_btn" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/choose_location_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_location_test" />
+
+            <Button
+                android:id="@+id/choose_location_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_location_stop" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
