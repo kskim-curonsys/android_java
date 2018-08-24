@@ -1,6 +1,7 @@
 package com.curonsys.android_java;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -37,11 +38,15 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.service.FetchAddressIntentService;
+import com.curonsys.android_java.service.GeofenceTransitionsIntentService;
 import com.curonsys.android_java.utils.Constants;
 import com.curonsys.android_java.utils.DBManager;
 import com.curonsys.android_java.utils.LocationUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -64,6 +69,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import eu.kudan.kudan.ARAPIKey;
 
@@ -95,6 +101,9 @@ public class ChooseActivity extends AppCompatActivity
     private LocationManager mLocationManager;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private DBManager mDBManager = DBManager.getInstance();
+    private GeofencingClient mGeofencingClient;
+    private List<Geofence> mGeofenceList;
+    private PendingIntent mGeofencePendingIntent;
 
     private MaterialDialog mMaterialDialog = null;
     private MaterialDialog.Builder mMaterialBuilder = null;
@@ -161,6 +170,7 @@ public class ChooseActivity extends AppCompatActivity
         public void onLocationChanged(Location location) {
             double longitude = location.getLongitude(); //경도
             double latitude = location.getLatitude();   //위도
+            float speed = location.getSpeed();
             //double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
             mMaterialDialog.dismiss();
 
@@ -182,7 +192,7 @@ public class ChooseActivity extends AppCompatActivity
             double difflat = latitudeInDifference(500);
             double difflon = longitudeInDifference(latitude, 500);
 
-            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "\n\n";
+            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "speed : " + speed + "\n\n";
             mTestResult.setText(mOutput);
 
             Log.d("test", "Current Latitude: " + latitude);
@@ -285,6 +295,7 @@ public class ChooseActivity extends AppCompatActivity
 
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        mGeofencingClient = LocationServices.getGeofencingClient(this);
 
         mTestLocation = (Button) findViewById(R.id.choose_location_btn);
         mTestLocation.setOnClickListener(new View.OnClickListener() {
@@ -327,6 +338,23 @@ public class ChooseActivity extends AppCompatActivity
         startLocationUpdate();
         getLastLocation();
         updateUI();
+
+        /*
+        mGeofenceList.add(new Geofence.Builder()
+                // Set the request ID of the geofence. This is a string to identify this
+                // geofence.
+                .setRequestId(entry.getKey())
+
+                .setCircularRegion(
+                        entry.getValue().latitude,
+                        entry.getValue().longitude,
+                        Constants.GEOFENCE_USER_RADIUS_IN_METERS
+                )
+                .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                        Geofence.GEOFENCE_TRANSITION_EXIT)
+                .build());
+         */
 
         mMaterialBuilder = new MaterialDialog.Builder(this)
                 .title("위치 수신중")
@@ -414,8 +442,9 @@ public class ChooseActivity extends AppCompatActivity
 
                                 double latitude = location.getLatitude();
                                 double longitude = location.getLongitude();
+                                float speed = location.getSpeed();
 
-                                mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n\n";
+                                mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n" + "speed : " + speed + "m/s" + "\n\n";
                                 mTestResult.setText(mOutput);
                             }
                         }
@@ -424,6 +453,66 @@ public class ChooseActivity extends AppCompatActivity
         } catch (SecurityException e) {
             e.printStackTrace();
         }
+    }
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
+    }
+
+    private PendingIntent getGeofencePendingIntent() {
+        // Reuse the PendingIntent if we already have it.
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
+        }
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        mGeofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+        return mGeofencePendingIntent;
+    }
+
+    private void startMonitorGeofences() {
+        try {
+            mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
+                    .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            // Geofences added
+                            // ...
+                        }
+                    })
+                    .addOnFailureListener(this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Failed to add geofences
+                            // ...
+                        }
+                    });
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopMonitorGeofences() {
+        mGeofencingClient.removeGeofences(getGeofencePendingIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Geofences removed
+                        // ...
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Failed to remove geofences
+                        // ...
+                    }
+                });
     }
 
     @Override

@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_OWNER_DATA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
         android:allowBackup="true"
@@ -23,6 +24,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBlhcGq5Yst_dbTmakaPdwD2bm_mMFqJ6k" />
+
         <activity
             android:name=".ChooseActivity"
             android:label="@string/title_activity_choose"
@@ -116,7 +121,7 @@
                 android:value="com.curonsys.android_java.activity.ItemListActivity" />
         </activity>
         <activity
-            android:name=".ScrollingActivity"
+            android:name=".activity.ScrollingActivity"
             android:label="@string/title_activity_scrolling"
             android:parentActivityName=".ChooseActivity"
             android:theme="@style/AppTheme.NoActionBar">
