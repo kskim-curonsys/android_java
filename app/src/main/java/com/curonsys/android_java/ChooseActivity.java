@@ -70,6 +70,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import eu.kudan.kudan.ARAPIKey;
 
@@ -88,9 +89,15 @@ public class ChooseActivity extends AppCompatActivity
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
 
-    private boolean mLocationUpdateState = false;
+    static final String LOCATION_UPDATE_STATE = "location_update_state";
+    static final String LOCATION_HISTORY = "location_histry";
+
+    private static final String TAG = ChooseActivity.class.getSimpleName();
+    private static final String TAG_GEO = "Geofence";
+
     private String mOutput = "";
     private String mAddressOutput = "";
+    private boolean mLocationUpdateState = false;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
@@ -117,8 +124,10 @@ public class ChooseActivity extends AppCompatActivity
     private Button mTestLocation;
     private Button mStopLocation;
 
-    class AddressResultReceiver extends ResultReceiver {
+    protected Location mLastLocation = null;
+    private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
 
+    class AddressResultReceiver extends ResultReceiver {
         public AddressResultReceiver(Handler handler) {
             super(handler);
         }
@@ -129,25 +138,16 @@ public class ChooseActivity extends AppCompatActivity
                 return;
             }
 
-            // Display the address string
-            // or an error message sent from the intent service.
             mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
             if (mAddressOutput == null) {
                 mAddressOutput = "";
             }
-            //displayAddressOutput();
 
-            // Show a toast message if an address was found.
             if (resultCode == Constants.SUCCESS_RESULT) {
-                //showToast(getString(R.string.address_found));
+                updateUI();
             }
-
-            updateUI();
         }
     }
-
-    protected Location mLastLocation = null;
-    private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -163,60 +163,6 @@ public class ChooseActivity extends AppCompatActivity
                     return true;
             }
             return false;
-        }
-    };
-
-    private final LocationListener mLocationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            double longitude = location.getLongitude(); //경도
-            double latitude = location.getLatitude();   //위도
-            float speed = location.getSpeed();
-            //double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
-            mMaterialDialog.dismiss();
-
-            LatLng currentLocation = new LatLng(latitude,longitude);
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(currentLocation);
-            markerOptions.title("현재 위치");
-            markerOptions.snippet("ARZone");
-            //mGoogleMap.addMarker(markerOptions);
-            //mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
-            //mLocationManager.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
-            mDBManager.markerLatitude = latitude;
-            mDBManager.markerLongtitude = longitude;
-
-            double testlat = 34.947773;
-            double testlon = 127.687474;
-            double testdist = distanceFrom(latitude, longitude, testlat, testlon);
-
-            double difflat = latitudeInDifference(500);
-            double difflon = longitudeInDifference(latitude, 500);
-
-            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "speed : " + speed + "\n\n";
-            mTestResult.setText(mOutput);
-
-            Log.d("test", "Current Latitude: " + latitude);
-            Log.d("test", "Current Longitude: " + longitude);
-            Log.d("test", "Distance From: " + testdist + "m");
-            // lat, lon : 상하, 좌우
-            // ++(우상), +-(좌상), -+(우하), --(좌하)
-            Log.d("test", "Latitude in Difference: " + (latitude - difflat));
-            Log.d("test", "Longitude in Difference: " + (longitude - difflon));
-        }
-
-        public void onProviderDisabled(String provider) {
-            // Disabled시
-            Log.d("test", "onProviderDisabled, provider:" + provider);
-        }
-
-        public void onProviderEnabled(String provider) {
-            // Enabled시
-            Log.d("test", "onProviderEnabled, provider:" + provider);
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            // 변경시
-            Log.d("test", "onStatusChanged, provider:" + provider + ", status:" + status + " ,Bundle:" + extras);
         }
     };
 
@@ -246,6 +192,15 @@ public class ChooseActivity extends AppCompatActivity
             }
         });
 
+        mAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
+        mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");
+        mAnalytics = FirebaseAnalytics.getInstance(this);
+
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        mGeofencingClient = LocationServices.getGeofencingClient(this);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
@@ -261,12 +216,6 @@ public class ChooseActivity extends AppCompatActivity
         };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-        mAuth = FirebaseAuth.getInstance();
-        mFirestore = FirebaseFirestore.getInstance();
-        mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");   // ("gs://gce-storage-army");
-        mAnalytics = FirebaseAnalytics.getInstance(this);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -293,18 +242,13 @@ public class ChooseActivity extends AppCompatActivity
         mTestResult.setMovementMethod(new ScrollingMovementMethod());
         mAddressResult = (TextView) findViewById(R.id.address_textview);
 
-        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        mGeofencingClient = LocationServices.getGeofencingClient(this);
-
         mTestLocation = (Button) findViewById(R.id.choose_location_btn);
         mTestLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("test", "onClick Test Location:");
+                Log.d(TAG, "onClick: Test Location");
 
-                getLastLocation();   // get last location
-                // In some rare cases the location returned can be null
+                getLastLocation();
                 if (mLastLocation == null) {
                     return;
                 }
@@ -316,10 +260,7 @@ public class ChooseActivity extends AppCompatActivity
                     return;
                 }
 
-                // Start service and update UI to reflect new location
-                Log.d("test", "onClick startIntentService:");
-                startIntentService();
-                Log.d("test", "onClick updateUI:");
+                startFetchAddressIntentService();
                 updateUI();
             }
         });
@@ -328,33 +269,15 @@ public class ChooseActivity extends AppCompatActivity
         mStopLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("test", "onClick Stop Location:");
+                Log.d(TAG, "onClick: Stop Location");
 
                 stopLocationUpdate();
             }
         });
 
-        //  start location update
-        startLocationUpdate();
+        mLocationUpdateState = true;    // temp: default set
         getLastLocation();
         updateUI();
-
-        /*
-        mGeofenceList.add(new Geofence.Builder()
-                // Set the request ID of the geofence. This is a string to identify this
-                // geofence.
-                .setRequestId(entry.getKey())
-
-                .setCircularRegion(
-                        entry.getValue().latitude,
-                        entry.getValue().longitude,
-                        Constants.GEOFENCE_USER_RADIUS_IN_METERS
-                )
-                .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build());
-         */
 
         mMaterialBuilder = new MaterialDialog.Builder(this)
                 .title("위치 수신중")
@@ -380,32 +303,82 @@ public class ChooseActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("LOCATION_UPDATE_STATE", mLocationUpdateState);
-        outState.putString("LOCATION_HISTORY", mOutput);
+        // for abnormal termination
+        outState.putBoolean(LOCATION_UPDATE_STATE, mLocationUpdateState);   // test
+        outState.putString(LOCATION_HISTORY, mOutput);      // test
 
         super.onSaveInstanceState(outState);
     }
 
-    protected void startIntentService() {
-        Intent intent = new Intent(this, FetchAddressIntentService.class);
-        intent.putExtra(Constants.RECEIVER, mResultReceiver);
-        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
-        startService(intent);
-    }
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
-    private void restoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState == null) {
-            return;
-        }
-
+        // for abnormal termination
         if (savedInstanceState.keySet().contains("LOCATION_UPDATE_STATE")) {
             mLocationUpdateState = savedInstanceState.getBoolean("LOCATION_UPDATE_STATE");
         }
         if (savedInstanceState.keySet().contains("LOCATION_HISTORY")) {
             mOutput = savedInstanceState.getString("LOCATION_HISTORY");
         }
-
         updateUI();
+    }
+
+    private final LocationListener mLocationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            double longitude = location.getLongitude(); //경도
+            double latitude = location.getLatitude();   //위도
+            float speed = location.getSpeed();
+            //double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
+            mMaterialDialog.dismiss();
+
+            LatLng currentLocation = new LatLng(latitude,longitude);
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(currentLocation);
+            markerOptions.title("현재 위치");
+            markerOptions.snippet("ARZone");
+            //mGoogleMap.addMarker(markerOptions);
+            //mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
+            //mLocationManager.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
+            mDBManager.markerLatitude = latitude;
+            mDBManager.markerLongtitude = longitude;
+
+            double testlat = 34.951302;      //
+            double testlon = 127.689964;
+            double testdist = distanceFrom(latitude, longitude, testlat, testlon);
+
+            double difflat = latitudeInDifference(500);
+            double difflon = longitudeInDifference(latitude, 500);
+
+            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "speed : " + speed + "\n\n";
+            mTestResult.setText(mOutput);
+
+            Log.d(TAG, "onLocationChanged(lat): " + latitude);
+            Log.d(TAG, "onLocationChanged(lon): " + longitude);
+            Log.d(TAG, "Test Distance From: " + testdist + "m");
+            // lat, lon : 상하, 좌우
+            // ++(우상), +-(좌상), -+(우하), --(좌하)
+            Log.d(TAG, "Test Latitude in Difference: " + (latitude - difflat));
+            Log.d(TAG, "Test Longitude in Difference: " + (longitude - difflon));
+        }
+
+        public void onProviderDisabled(String provider) {
+            Log.d(TAG, "onProviderDisabled: " + provider);
+        }
+
+        public void onProviderEnabled(String provider) {
+            Log.d(TAG, "onProviderEnabled: " + provider);
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d(TAG, "onStatusChanged: " + provider + ", status: " + status + " ,Bundle: " + extras);
+        }
+    };
+
+    protected void startFetchAddressIntentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+        startService(intent);
     }
 
     private void startLocationUpdate() {
@@ -435,16 +408,14 @@ public class ChooseActivity extends AppCompatActivity
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
                             if (location != null) {
-                                // Logic to handle location object
                                 mLastLocation = location;
 
                                 double latitude = location.getLatitude();
                                 double longitude = location.getLongitude();
                                 float speed = location.getSpeed();
 
-                                mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n" + "speed : " + speed + "m/s" + "\n\n";
+                                mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n" + " speed : " + speed + "m/s" + "\n\n";
                                 mTestResult.setText(mOutput);
                             }
                         }
@@ -463,33 +434,47 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }
         Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-        // calling addGeofences() and removeGeofences().
-        mGeofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
+        mGeofencePendingIntent = PendingIntent.getService(this, 0,
+                intent, PendingIntent. FLAG_UPDATE_CURRENT);
         return mGeofencePendingIntent;
     }
 
     private void startMonitorGeofences() {
+        for (Map.Entry<String, LatLng> entry : Constants.BAY_AREA_LANDMARKS.entrySet()) {
+            mGeofenceList.add(new Geofence.Builder()
+                    .setRequestId(entry.getKey())
+                    .setCircularRegion(
+                            entry.getValue().latitude,
+                            entry.getValue().longitude,
+                            Constants.GEOFENCE_SERVICE_RADIUS_IN_METERS
+                    )
+                    .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build());
+        }
+
+        if (mGeofenceList.size() < 1) {
+            Log.d(TAG_GEO, "startMonitorGeofences: geofence list is empty!");
+            return;
+        }
+
         try {
             mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
                     .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            // Geofences added
-                            // ...
+                            Log.d(TAG_GEO, "onSuccess: add geofences success");
                         }
                     })
                     .addOnFailureListener(this, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            // Failed to add geofences
-                            // ...
+                            Log.d(TAG_GEO, "onFailure: " + e.getMessage());
                         }
                     });
         } catch (SecurityException e) {
@@ -502,15 +487,13 @@ public class ChooseActivity extends AppCompatActivity
                 .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        // Geofences removed
-                        // ...
+                        Log.d(TAG_GEO, "onSuccess: remove geofences success");
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        // Failed to remove geofences
-                        // ...
+                        Log.d(TAG_GEO, "onFailure: " + e.getMessage());
                     }
                 });
     }
@@ -520,12 +503,8 @@ public class ChooseActivity extends AppCompatActivity
         switch (requestCode) {
             case REQUEST_TAKE_PHOTO:
                 if (resultCode == Activity.RESULT_OK) {
-                    // setInputImage()
-                    // cropImage()
-                    // start crop activity
 
                 } else {
-                    // cancel
 
                 }
 
@@ -533,12 +512,6 @@ public class ChooseActivity extends AppCompatActivity
 
             case REQUEST_TAKE_ALBUM:
                 if (resultCode == Activity.RESULT_OK) {
-                    // getData()
-                    // setPhotoURI()
-                    // setInputImage()
-
-                    // cropImage()
-                    // start crop activity
 
                 } else {
 
@@ -548,16 +521,6 @@ public class ChooseActivity extends AppCompatActivity
 
             case REQUEST_IMAGE_CROP:
                 if (resultCode == Activity.RESULT_OK) {
-                    // galleryAddPic()
-                    // getAlbumURI()
-                    // setImageURI()
-
-                    // DBManager
-                    // - imageURI
-                    // - generatorId
-
-                    // getBitmap()
-                    // CheckingAsyncTask.execute()
 
                 } else {
 
@@ -579,19 +542,14 @@ public class ChooseActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.choose, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -602,7 +560,6 @@ public class ChooseActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
@@ -796,14 +753,23 @@ public class ChooseActivity extends AppCompatActivity
 
     private void goTestDownload() {
         // download from storage
-
+        Intent intent = new Intent(this, AccountActivity.class);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     private void goTestGetList() {
-
+        Intent intent = new Intent(this, MyaccountActivity.class);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     private void goTestGetContent() {
-
+        Intent intent = new Intent(this, ItemListActivity.class);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 }

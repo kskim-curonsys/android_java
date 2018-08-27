@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_OWNER_DATA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
@@ -41,6 +42,7 @@
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/app_name"
+            android:theme="@style/Theme.Base"
             android:parentActivityName=".ChooseActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -67,7 +69,7 @@
             android:name=".activity.MyaccountActivity"
             android:label="@string/title_activity_myaccount"
             android:parentActivityName=".ChooseActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBarDark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
@@ -83,6 +85,7 @@
         <activity
             android:name=".activity.SignupActivity"
             android:label="@string/title_activity_signup"
+            android:theme="@style/Theme.BaseDark"
             android:parentActivityName=".ChooseActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -106,7 +109,7 @@
             android:name=".activity.ItemListActivity"
             android:label="@string/title_item_list"
             android:parentActivityName=".ChooseActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBarDark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
@@ -115,7 +118,7 @@
             android:name=".activity.ItemDetailActivity"
             android:label="@string/title_item_detail"
             android:parentActivityName=".activity.ItemListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBarDark">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.activity.ItemListActivity" />

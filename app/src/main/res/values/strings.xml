@@ -36,11 +36,25 @@
     <string name="choose_location_test">Get Last</string>
     <string name="choose_location_stop">Stop</string>
 
+    <!-- Error strings -->
+    <string name="geofence_not_available">Geofence service is not available now</string>
+    <string name="geofence_too_many_geofences">Your app has registered too many geofences</string>
+    <string name="geofence_too_many_pending_intents">You have provided too many PendingIntents to the addGeofences() call </string>
+    <string name="unknown_geofence_error">Unknown error: the Geofence service is not available now </string>
+    <string name="geofence_transition_invalid_type">Geofence transition error: invalid transition type %1$d </string>
+
+    <!-- Transition type strings -->
+    <string name="geofence_transition_entered">Entered</string>
+    <string name="geofence_transition_exited">Exited</string>
+    <string name="unknown_geofence_transition">Unknown Transition</string>
+
     <string name="service_not_available">The background geocoding service is not available due to a network error or IO exception.</string>
     <string name="invalid_lat_long_used">The latitude and/or longitude values that are provided in the Location object are invalid.</string>
     <string name="no_address_found">The geocoder cannot find an address for the given latitude/longitude.</string>
     <string name="address_found">The geocoder found an address.</string>
     <string name="no_geocoder_available">The background geocoding service is not available due to a network error or IO exception.</string>
+
+    <string name="geofence_transition_notification_text">Click notification to return to app</string>
 
     <!-- Strings related to Settings -->
 
