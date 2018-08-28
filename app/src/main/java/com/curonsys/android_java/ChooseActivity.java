@@ -69,6 +69,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -109,7 +110,7 @@ public class ChooseActivity extends AppCompatActivity
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private DBManager mDBManager = DBManager.getInstance();
     private GeofencingClient mGeofencingClient;
-    private List<Geofence> mGeofenceList;
+    private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
     private PendingIntent mGeofencePendingIntent;
 
     private MaterialDialog mMaterialDialog = null;
@@ -262,6 +263,7 @@ public class ChooseActivity extends AppCompatActivity
 
                 startFetchAddressIntentService();
                 updateUI();
+                startMonitorGeofences();
             }
         });
 
@@ -272,6 +274,7 @@ public class ChooseActivity extends AppCompatActivity
                 Log.d(TAG, "onClick: Stop Location");
 
                 stopLocationUpdate();
+                stopMonitorGeofences();
             }
         });
 
@@ -321,6 +324,105 @@ public class ChooseActivity extends AppCompatActivity
             mOutput = savedInstanceState.getString("LOCATION_HISTORY");
         }
         updateUI();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_TAKE_PHOTO:
+                if (resultCode == Activity.RESULT_OK) {
+
+                } else {
+
+                }
+
+                break;
+
+            case REQUEST_TAKE_ALBUM:
+                if (resultCode == Activity.RESULT_OK) {
+
+                } else {
+
+                }
+
+                break;
+
+            case REQUEST_IMAGE_CROP:
+                if (resultCode == Activity.RESULT_OK) {
+
+                } else {
+
+                }
+
+                break;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.choose, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            goCamera();
+
+        } else if (id == R.id.nav_gallery) {
+            goGallery();
+
+        } else if (id == R.id.nav_arcamera) {
+            goARCamera();
+
+        } else if (id == R.id.nav_options) {
+            goOption();
+
+        } else if (id == R.id.nav_signup) {
+            goSignupStep();
+
+        } else if (id == R.id.nav_upload) {
+            goTestUpload();
+
+        } else if (id == R.id.nav_download) {
+            goTestDownload();
+
+        } else if (id == R.id.nav_gettest) {
+            goTestGetList();
+
+        } else if (id == R.id.nav_posttest) {
+            goTestGetContent();
+
+        } else if (id == R.id.nav_logout) {
+            doSignOut();
+        }
+        closeDrawer();
+
+        return true;
     }
 
     private final LocationListener mLocationListener = new LocationListener() {
@@ -496,105 +598,6 @@ public class ChooseActivity extends AppCompatActivity
                         Log.d(TAG_GEO, "onFailure: " + e.getMessage());
                     }
                 });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_TAKE_PHOTO:
-                if (resultCode == Activity.RESULT_OK) {
-
-                } else {
-
-                }
-
-                break;
-
-            case REQUEST_TAKE_ALBUM:
-                if (resultCode == Activity.RESULT_OK) {
-
-                } else {
-
-                }
-
-                break;
-
-            case REQUEST_IMAGE_CROP:
-                if (resultCode == Activity.RESULT_OK) {
-
-                } else {
-
-                }
-
-                break;
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.choose, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            goCamera();
-
-        } else if (id == R.id.nav_gallery) {
-            goGallery();
-
-        } else if (id == R.id.nav_arcamera) {
-            goARCamera();
-
-        } else if (id == R.id.nav_options) {
-            goOption();
-
-        } else if (id == R.id.nav_signup) {
-            goSignupStep();
-
-        } else if (id == R.id.nav_upload) {
-            goTestUpload();
-
-        } else if (id == R.id.nav_download) {
-            goTestDownload();
-
-        } else if (id == R.id.nav_gettest) {
-            goTestGetList();
-
-        } else if (id == R.id.nav_posttest) {
-            goTestGetContent();
-
-        } else if (id == R.id.nav_logout) {
-            doSignOut();
-        }
-        closeDrawer();
-
-        return true;
     }
 
     private void closeDrawer() {

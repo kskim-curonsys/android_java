@@ -21,6 +21,9 @@ public final class Constants {
     public static final HashMap<String, LatLng> BAY_AREA_LANDMARKS = new HashMap<>();
 
     static {
+        // Curonsys
+        BAY_AREA_LANDMARKS.put("CURONSYS", new LatLng(34.947224, 127.687605));
+
         // Home_APT
         BAY_AREA_LANDMARKS.put("HOME_APT", new LatLng(34.951302, 127.689964));
 
