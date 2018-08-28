@@ -37,6 +37,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.model.ContentsListModel;
 import com.curonsys.android_java.service.FetchAddressIntentService;
 import com.curonsys.android_java.service.GeofenceTransitionsIntentService;
 import com.curonsys.android_java.utils.Constants;
@@ -107,6 +109,7 @@ public class ChooseActivity extends AppCompatActivity
     private GoogleMap mGoogleMap;
     private LocationManager mLocationManager;
     private FusedLocationProviderClient mFusedLocationProviderClient;
+    private RequestManager mRequestManager;
     private DBManager mDBManager = DBManager.getInstance();
     private GeofencingClient mGeofencingClient;
     private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
@@ -195,6 +198,8 @@ public class ChooseActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");
         mAnalytics = FirebaseAnalytics.getInstance(this);
+
+        mRequestManager = RequestManager.getInstance();
 
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -746,18 +751,25 @@ public class ChooseActivity extends AppCompatActivity
             });
 
             // test: uploaded info.
-
         } else {
             Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
     }
 
     private void goTestDownload() {
-        // download from storage
-        Intent intent = new Intent(this, AccountActivity.class);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
+        // test requestmanager
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String uid = currentUser.getUid();
+
+        mRequestManager.requestContentsList(uid, new RequestManager.ContentsListCallback() {
+            @Override
+            public void onResponse(ArrayList<ContentsListModel> response) {
+                ContentsListModel model = response.get(0);
+
+                Log.d(TAG, "onResponse: ContentListModel (" +
+                        model.getId() + ", " + model.getName() + ", " + model.getThumbURL() + ")");
+            }
+        });
     }
 
     private void goTestGetList() {

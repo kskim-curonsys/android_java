@@ -31,11 +31,18 @@ import cz.msebera.android.httpclient.Header;
 public class RequestManager {
     private static final String TAG = RequestManager.class.getSimpleName();
 
-    private String baseUrl = "";
-    private String absoluteUrl = "";
+    private static String mBaseUrl = "https://kskim-curonsys.com";
+
+    private static RequestManager mInstance;
+    public static RequestManager getInstance() {
+        if (mInstance == null) {
+            mInstance = new RequestManager();
+        }
+        return mInstance;
+    }
+
     private AsyncHttpClient client;
     private FirebaseFirestore mFirestore;
-
 
     public interface JsonResponseCallback{
         public void onResponse(JSONObject success);
@@ -69,16 +76,19 @@ public class RequestManager {
         mFirestore = FirebaseFirestore.getInstance();
     }
 
-    public RequestManager(String url){
-        this.baseUrl = url;
+    public RequestManager(String baseurl) {
+        mBaseUrl = baseurl;
         mFirestore = FirebaseFirestore.getInstance();
     }
-
 
     public void requestContentsList(String userid, final ContentsListCallback callback) {
         ArrayList<ContentsListModel> data = new ArrayList<ContentsListModel>();
 
-        //...
+        // test
+        ContentsListModel model = new ContentsListModel("20180828_c3heli32", "helicopter", "3d helicopter model content",
+                "0.0.9", "/models/helicopter/thumb.png");
+        data.add(model);
+
         callback.onResponse(data);
     }
 
@@ -104,16 +114,13 @@ public class RequestManager {
     }
 
 
-
-
     public void requestContentsOfUser(String subUrl, String id, final JsonResponseCallback callback) throws JSONException{
-        this.absoluteUrl = baseUrl + subUrl;
+        String url = mBaseUrl + subUrl;
 
         RequestParams params = new RequestParams();
         params.add("userIdentify",id);
 
-
-        this.client.get(absoluteUrl, params, new JsonHttpResponseHandler() {
+        this.client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 callback.onResponse(responseBody);
@@ -131,16 +138,16 @@ public class RequestManager {
     }
 
     public void requestInfoOfSelectedContents(String subUrl, String id, final JsonResponseCallback callback) throws JSONException{
-        this.absoluteUrl = baseUrl + subUrl;
+        String url = mBaseUrl + subUrl;
 
         RequestParams params = new RequestParams();
         params.add("contentsIndentify",id);
 
-
-        this.client.get(absoluteUrl, params, new JsonHttpResponseHandler() {
+        this.client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 callback.onResponse(responseBody);
+
                 /*
                 ContentsUrl : 다운받을 컨텐츠 URL( .jet or .jpg(png) or mp4)
                 ContentsTextureUrl : 다운받을 textureURL (여러 개이거나 null 가능)
@@ -154,6 +161,7 @@ public class RequestManager {
     public void requestMarkerRegistInfo(String subUrl, String imgPath, String user_id, float rating, float longitude, float latitude,
                                         String contents_id, float contentsScale, float contentsRotateX, float contentsRotateY, float contentsRotateZ,
                                         final BoolResponseCallback callback) throws IOException{
+
         /*
         UserIdentify    = 등록하는 사용자의 식별 정보
         MarkerRating    = 최종적으로 평가한 마커 평점
@@ -166,7 +174,7 @@ public class RequestManager {
         ContentsRotateY = 3d 컨텐츠의 회전Y축 조정 값
         ContentsRotateZ = 3d 컨텐츠의 회전Z축 조정 값
         * */
-        this.absoluteUrl = baseUrl + subUrl;
+        String url = mBaseUrl + subUrl;
 
         RequestParams params = new RequestParams();
         params.add("usersIndentify", user_id);
@@ -185,9 +193,8 @@ public class RequestManager {
             params.put("image",img);
         }catch (FileNotFoundException e){e.printStackTrace();}
 
-
         //string data request
-        this.client.get(absoluteUrl, params, new AsyncHttpResponseHandler() {
+        this.client.get(url, params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 String result = new String(responseBody);
@@ -195,6 +202,7 @@ public class RequestManager {
                     callback.onResponse(true);
                 else
                     callback.onResponse(false);
+
                 /*
                 ContentsUrl : 다운받을 컨텐츠 URL( .jet or .jpg(png) or mp4)
                 ContentsTextureUrl : 다운받을 textureURL (여러 개이거나 null 가능)
@@ -211,12 +219,11 @@ public class RequestManager {
     }
 
     public void requestContents(String subUrl, float longitude, float latitude, String imgPath, final JsonResponseCallback callback){
-        this.absoluteUrl = baseUrl + subUrl;
+        String url = mBaseUrl + subUrl;
 
         RequestParams params = new RequestParams();
         params.put("longitude",longitude);
         params.put("latitude",latitude);
-
 
         try {
             File img = new File(imgPath);
@@ -225,10 +232,11 @@ public class RequestManager {
             e.printStackTrace();
         }
 
-        this.client.get(absoluteUrl, params, new JsonHttpResponseHandler() {
+        this.client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 callback.onResponse(responseBody);
+
                 /*
                     ContentsURL            =   다운받을 컨텐츠 Url
                     ContentsTextureURL     =   다운받을 textureUrl (여러 개일 수 있음)
