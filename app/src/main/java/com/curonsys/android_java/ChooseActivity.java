@@ -101,7 +101,6 @@ public class ChooseActivity extends AppCompatActivity
     private boolean mLocationUpdateState = false;
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore mFirestore;
     private FirebaseStorage mStorage;
     private FirebaseAnalytics mAnalytics;
 
@@ -194,7 +193,6 @@ public class ChooseActivity extends AppCompatActivity
         });
 
         mAuth = FirebaseAuth.getInstance();
-        mFirestore = FirebaseFirestore.getInstance();
         mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");
         mAnalytics = FirebaseAnalytics.getInstance(this);
 
@@ -451,7 +449,7 @@ public class ChooseActivity extends AppCompatActivity
             double difflat = latitudeInDifference(500);
             double difflon = longitudeInDifference(latitude, 500);
 
-            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "speed : " + speed + "\n\n";
+            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "\n" + "speed : " + speed + "\n\n";
             mTestResult.setText(mOutput);
 
             Log.d(TAG, "onLocationChanged(lat): " + latitude);
@@ -472,7 +470,7 @@ public class ChooseActivity extends AppCompatActivity
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            Log.d(TAG, "onStatusChanged: " + provider + ", status: " + status + " ,Bundle: " + extras);
+            //Log.d(TAG, "onStatusChanged: " + provider + ", status: " + status + " ,Bundle: " + extras);
         }
     };
 

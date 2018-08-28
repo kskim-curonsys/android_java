@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class FetchAddressIntentService extends IntentService {
+    private static final String TAG = FetchAddressIntentService.class.getSimpleName();
+
     protected ResultReceiver mReceiver;
     private String mName;
 
@@ -56,11 +58,11 @@ public class FetchAddressIntentService extends IntentService {
         } catch (IOException ioException) {
             // Catch network or other I/O problems.
             errorMessage = getString(R.string.service_not_available);
-            Log.e("error", errorMessage, ioException);
+            Log.e(TAG, errorMessage, ioException);
         } catch (IllegalArgumentException illegalArgumentException) {
             // Catch invalid latitude or longitude values.
             errorMessage = getString(R.string.invalid_lat_long_used);
-            Log.e("error", errorMessage + ". " +
+            Log.e(TAG, errorMessage + ". " +
                     "Latitude = " + location.getLatitude() + ", Longitude = " +
                     location.getLongitude(), illegalArgumentException);
         }
@@ -69,7 +71,7 @@ public class FetchAddressIntentService extends IntentService {
         if (addresses == null || addresses.size()  == 0) {
             if (errorMessage.isEmpty()) {
                 errorMessage = getString(R.string.no_address_found);
-                Log.e("error", errorMessage);
+                Log.e(TAG, errorMessage);
             }
             deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
         } else {
@@ -81,7 +83,7 @@ public class FetchAddressIntentService extends IntentService {
             for(int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
                 addressFragments.add(address.getAddressLine(i));
             }
-            Log.i("error", getString(R.string.address_found));
+            Log.i(TAG, getString(R.string.address_found));
             deliverResultToReceiver(Constants.SUCCESS_RESULT,
                     TextUtils.join(System.getProperty("line.separator"), addressFragments));
         }

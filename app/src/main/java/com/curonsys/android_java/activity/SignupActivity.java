@@ -48,9 +48,9 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class SignupActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+    private static final String TAG = SignupActivity.class.getSimpleName();
 
     private static final int REQUEST_READ_CONTACTS = 0;
-    private static final String TAG = "SignupActivity";
 
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;

@@ -5,7 +5,10 @@ import android.widget.Toast;
 
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
+import com.curonsys.android_java.model.MarkerListModel;
 import com.curonsys.android_java.model.MarkerModel;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -26,11 +29,13 @@ import cz.msebera.android.httpclient.Header;
  */
 
 public class RequestManager {
+    private static final String TAG = RequestManager.class.getSimpleName();
+
     private String baseUrl = "";
     private String absoluteUrl = "";
     private AsyncHttpClient client;
+    private FirebaseFirestore mFirestore;
 
-    //this is callback func define.
 
     public interface JsonResponseCallback{
         public void onResponse(JSONObject success);
@@ -45,22 +50,61 @@ public class RequestManager {
     }
 
     public interface ContentsListCallback {
-        public void onResponse(ContentsListModel success);
+        public void onResponse(ArrayList<ContentsListModel> response);
     }
 
     public interface ContentCallback {
-        public void onResponse(ContentModel success);
+        public void onResponse(ContentModel response);
+    }
+
+    public interface MarkerListCallback {
+        public void onResponse(ArrayList<MarkerListModel> response);
     }
 
     public interface MarkerCallback {
-        public void onResponse(MarkerModel success);
+        public void onResponse(MarkerModel response);
     }
 
-    // generate func define.
+    public RequestManager() {
+        mFirestore = FirebaseFirestore.getInstance();
+    }
 
     public RequestManager(String url){
         this.baseUrl = url;
+        mFirestore = FirebaseFirestore.getInstance();
     }
+
+
+    public void requestContentsList(String userid, final ContentsListCallback callback) {
+        ArrayList<ContentsListModel> data = new ArrayList<ContentsListModel>();
+
+        //...
+        callback.onResponse(data);
+    }
+
+    public void requestContentInfo(String contentid, final ContentCallback callback) {
+        ContentModel model = new ContentModel();
+
+        //...
+        callback.onResponse(model);
+    }
+
+    public void requestMarkerList(LatLng location, final MarkerListCallback callback) {
+        ArrayList<MarkerListModel> data = new ArrayList<MarkerListModel>();
+
+        //...
+        callback.onResponse(data);
+    }
+
+    public void requestMarkerInfo(String markerid, final MarkerCallback callback) {
+        MarkerModel model = new MarkerModel();
+
+        //...
+        callback.onResponse(model);
+    }
+
+
+
 
     public void requestContentsOfUser(String subUrl, String id, final JsonResponseCallback callback) throws JSONException{
         this.absoluteUrl = baseUrl + subUrl;
@@ -200,30 +244,4 @@ public class RequestManager {
         });
     }
 
-    public ArrayList<ContentsListModel> getContentsList(String userid, final ContentsListCallback callback) {
-        //
-
-        ArrayList<ContentsListModel> data = new ArrayList<ContentsListModel>();
-        return data;
-    }
-
-    public ContentModel getContentInfo(String contentid, final ContentCallback callback) {
-        //
-
-        ContentModel model = new ContentModel();
-        return model;
-    }
-
-    public MarkerModel getMarkerInfo(final MarkerCallback callback) {
-        //
-
-        MarkerModel model = new MarkerModel();
-        return model;
-    }
-
-    //public MarkerListModel getMarkerList(final MarkerListCallback callback) {
-    // Query
-    //}
-
-    // location
 }

@@ -16,8 +16,8 @@ public class MarkerModel {
 
     private String user_id;
     private String marker_url;
-    private String marker_latitude;
-    private String marker_longitude;
+    private double marker_latitude;
+    private double marker_longitude;
     private float marker_rating;
     private String content_id;
     private float content_scale;
@@ -25,7 +25,7 @@ public class MarkerModel {
     private float content_rotation_y;
     private float content_rotation_z;
 
-    public MarkerModel(String userid, String url, String latitude, String longitude, float rating, String contentid,
+    public MarkerModel(String userid, String url, double latitude, double longitude, float rating, String contentid,
                        float scale, float x, float y, float z) {
         user_id = userid;
         marker_url = url;
@@ -42,8 +42,8 @@ public class MarkerModel {
     public MarkerModel() {
         user_id = "";
         marker_url = "";
-        marker_latitude = "";
-        marker_longitude = "";
+        marker_latitude = 0;
+        marker_longitude = 0;
         marker_rating = 0;
         content_id = "";
         content_scale = 0;
@@ -60,11 +60,11 @@ public class MarkerModel {
         return marker_url;
     }
 
-    public String getMarkerLatitude() {
+    public double getMarkerLatitude() {
         return marker_latitude;
     }
 
-    public String getMarkerLongitude() {
+    public double getMarkerLongitude() {
         return marker_longitude;
     }
 

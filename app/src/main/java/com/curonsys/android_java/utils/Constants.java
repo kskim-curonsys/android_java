@@ -22,7 +22,7 @@ public final class Constants {
 
     static {
         // Curonsys
-        BAY_AREA_LANDMARKS.put("CURONSYS", new LatLng(34.947224, 127.687605));
+        BAY_AREA_LANDMARKS.put("CURONSYS", new LatLng(34.9471727, 127.6876304));
 
         // Home_APT
         BAY_AREA_LANDMARKS.put("HOME_APT", new LatLng(34.951302, 127.689964));
