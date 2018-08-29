@@ -38,7 +38,10 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
+import com.curonsys.android_java.model.UserContentsModel;
+import com.curonsys.android_java.model.UserModel;
 import com.curonsys.android_java.service.FetchAddressIntentService;
 import com.curonsys.android_java.service.GeofenceTransitionsIntentService;
 import com.curonsys.android_java.utils.Constants;
@@ -759,15 +762,37 @@ public class ChooseActivity extends AppCompatActivity
     private void goTestDownload() {
         // test requestmanager
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        String uid = currentUser.getUid();
+        String userid = currentUser.getUid();
 
-        mRequestManager.requestContentsList(uid, new RequestManager.ContentsListCallback() {
+        // user
+        /*
+        mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
             @Override
-            public void onResponse(ArrayList<ContentsListModel> response) {
-                ContentsListModel model = response.get(0);
-
+            public void onResponse(UserModel response) {
                 Log.d(TAG, "onResponse: ContentListModel (" +
-                        model.getId() + ", " + model.getName() + ", " + model.getThumbURL() + ")");
+                        response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
+
+                // contents list
+                ArrayList<String> ids = response.getContents();
+                for (int i = 0; i < ids.size(); i++) {
+                    String content_id = ids.get(i);
+
+
+                }
+            }
+        });
+        */
+
+        // content
+        String content_id = "ZUZKrsGuGA9DdOwVBiWA";
+        mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
+            @Override
+            public void onResponse(ContentModel response) {
+                Log.d(TAG, "onResponse: ContentModel (" +
+                        response.getContentId() + ", " + response.getContentName() + ", " + response.getVersion() + ")");
+
+                mOutput += "onResponse: ContentModel (" + response.getContentId() + ", " + response.getContentName() + ", " + response.getVersion() + ")";
+                mTestResult.setText(mOutput);
             }
         });
     }

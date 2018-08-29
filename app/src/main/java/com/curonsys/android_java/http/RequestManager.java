@@ -1,14 +1,25 @@
 package com.curonsys.android_java.http;
 
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
 import com.curonsys.android_java.model.MarkerListModel;
 import com.curonsys.android_java.model.MarkerModel;
+import com.curonsys.android_java.model.UserContentsModel;
+import com.curonsys.android_java.model.UserModel;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -56,6 +67,10 @@ public class RequestManager {
         public void onResponse(String success);
     }
 
+    public interface UserCallback {
+        public void onResponse(UserModel response);
+    }
+
     public interface ContentsListCallback {
         public void onResponse(ArrayList<ContentsListModel> response);
     }
@@ -81,39 +96,58 @@ public class RequestManager {
         mFirestore = FirebaseFirestore.getInstance();
     }
 
-    public void requestContentsList(String userid, final ContentsListCallback callback) {
-        ArrayList<ContentsListModel> data = new ArrayList<ContentsListModel>();
-
-        // test
-        ContentsListModel model = new ContentsListModel("20180828_c3heli32", "helicopter", "3d helicopter model content",
-                "0.0.9", "/models/helicopter/thumb.png");
-        data.add(model);
-
-        callback.onResponse(data);
+    public void requestGetUserInfo(String userid, final UserCallback callback) {
+        DocumentReference docRef = mFirestore.collection("users").document(userid);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
+                UserModel model = new UserModel(documentSnapshot.getData());
+                callback.onResponse(model);
+            }
+        });
     }
 
-    public void requestContentInfo(String contentid, final ContentCallback callback) {
-        ContentModel model = new ContentModel();
+    public void requestSetUserInfo(UserModel data, final UserCallback callback) {
 
-        //...
-        callback.onResponse(model);
     }
 
-    public void requestMarkerList(LatLng location, final MarkerListCallback callback) {
+    public void requestGetContentInfo(String contentid, final ContentCallback callback) {
+        DocumentReference docRef = mFirestore.collection("models").document(contentid);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
+                ContentModel model = new ContentModel(documentSnapshot.getData());
+                callback.onResponse(model);
+            }
+        });
+    }
+
+    public void requestSetContentInfo(ContentModel data, final ContentCallback callback) {
+
+    }
+
+    public void requestGetMarkerList(LatLng location, final MarkerListCallback callback) {
         ArrayList<MarkerListModel> data = new ArrayList<MarkerListModel>();
 
         //...
         callback.onResponse(data);
     }
 
-    public void requestMarkerInfo(String markerid, final MarkerCallback callback) {
+    public void requestGetMarkerInfo(String markerid, final MarkerCallback callback) {
         MarkerModel model = new MarkerModel();
 
         //...
         callback.onResponse(model);
     }
 
+    public void requestSetMarkerInfo(MarkerModel data, final MarkerCallback callback) {
 
+    }
+
+
+    /*
     public void requestContentsOfUser(String subUrl, String id, final JsonResponseCallback callback) throws JSONException{
         String url = mBaseUrl + subUrl;
 
@@ -124,14 +158,6 @@ public class RequestManager {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 callback.onResponse(responseBody);
-
-                /*
-                   response 데이터 :
-                   ** ContentsIndentify
-                      ContentsName
-                      ContentsDescribe
-                      ThumbNailUrl
-                */
 
             }
         });
@@ -148,12 +174,6 @@ public class RequestManager {
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 callback.onResponse(responseBody);
 
-                /*
-                ContentsUrl : 다운받을 컨텐츠 URL( .jet or .jpg(png) or mp4)
-                ContentsTextureUrl : 다운받을 textureURL (여러 개이거나 null 가능)
-                ContentsSoundUrl : 다운받을 Sound(mp3 파일)의 URL(null 가능)
-                ContentsType : 가져오는 컨텐츠의 type(video or 3d contents or 2d img)
-                */
             }
         });
     }
@@ -162,18 +182,6 @@ public class RequestManager {
                                         String contents_id, float contentsScale, float contentsRotateX, float contentsRotateY, float contentsRotateZ,
                                         final BoolResponseCallback callback) throws IOException{
 
-        /*
-        UserIdentify    = 등록하는 사용자의 식별 정보
-        MarkerRating    = 최종적으로 평가한 마커 평점
-        MarkerImage     = 마커로 사용할 이미지
-        Longitude       = 경도값
-        Latitude        = 위도값
-        ContentsIndentify = 3d 컨텐츠의 식별값
-        ContentsScale   = 3d 컨텐츠의 스케일 조정 값
-        ContentsRotateX = 3d 컨텐츠의 회전X축 조정 값
-        ContentsRotateY = 3d 컨텐츠의 회전Y축 조정 값
-        ContentsRotateZ = 3d 컨텐츠의 회전Z축 조정 값
-        * */
         String url = mBaseUrl + subUrl;
 
         RequestParams params = new RequestParams();
@@ -202,13 +210,6 @@ public class RequestManager {
                     callback.onResponse(true);
                 else
                     callback.onResponse(false);
-
-                /*
-                ContentsUrl : 다운받을 컨텐츠 URL( .jet or .jpg(png) or mp4)
-                ContentsTextureUrl : 다운받을 textureURL (여러 개이거나 null 가능)
-                ContentsSoundUrl : 다운받을 Sound(mp3 파일)의 URL(null 가능)
-                ContentsType : 가져오는 컨텐츠의 type(video or 3d contents or 2d img)
-                */
             }
 
             @Override
@@ -237,19 +238,9 @@ public class RequestManager {
             public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
                 callback.onResponse(responseBody);
 
-                /*
-                    ContentsURL            =   다운받을 컨텐츠 Url
-                    ContentsTextureURL     =   다운받을 textureUrl (여러 개일 수 있음)
-                    ContentsType           =   가져오는 컨텐츠의 type(video or 3d contents or 2d img)
-                    MarkerImageURL         =   트래킹할 마커 이미지URL
-                    ContentsScale          =   컨텐츠 크기값
-                    ContentsRotationX      =   컨텐츠 X축 방향값
-                    ContentsRotationY      =   컨텐츠 Y축 방향값
-                    ContentsRotationZ      =   컨텐츠 Z축 방향값
-                    ContentsSoundUrl       =   가져오는 컨텐츠의 type(video or 3d contents or 2d img)
-                */
             }
         });
     }
 
+    */
 }

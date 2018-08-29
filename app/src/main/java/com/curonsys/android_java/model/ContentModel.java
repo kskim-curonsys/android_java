@@ -1,124 +1,83 @@
 package com.curonsys.android_java.model;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class ContentModel {
-    /*
-    ContentsURL            =   다운받을 컨텐츠 Url
-    ContentsTextureURL     =   다운받을 textureUrl (여러 개일 수 있음)
-    ContentsType           =   가져오는 컨텐츠의 type(video or 3d contents or 2d img)
-    MarkerImageURL         =   트래킹할 마커 이미지URL
-    ContentsScale          =   컨텐츠 크기값 (default)
-    ContentsRotationX      =   컨텐츠 X축 방향값 (default)
-    ContentsRotationY      =   컨텐츠 Y축 방향값 (default)
-    ContentsRotationZ      =   컨텐츠 Z축 방향값 (default)
-    ContentsSoundUrl       =   가져오는 컨텐츠의 type(video or 3d contents or 2d img)
-    */
-
-    private String content_id;
-    private String content_name;
-    private String content_describe;
-    private ArrayList<String> content_url;
-    private ArrayList<String> texture_url;
-    private Integer content_type;
-    private String marker_url;
-    private float content_scale;
-    private float content_rotation_x;
-    private float content_rotation_y;
-    private float content_rotation_z;
-    private String sound_url;
-    private String video_url;
-    private String content_version;
-
-    public ContentModel(String id, String name, String describe, ArrayList<String> contents, ArrayList<String> textures,
-                        Integer type, String marker, float scale, float x, float y, float z,
-                        String sound, String video, String version) {
-        content_id = id;
-        content_name = name;
-        content_describe = describe;
-        content_url = contents;
-        texture_url = textures;
-        content_type = type;
-        marker_url = marker;
-        content_scale = scale;
-        content_rotation_x = x;
-        content_rotation_y = y;
-        content_rotation_z = z;
-        sound_url = sound;
-        video_url = video;
-        content_version = version;
-    }
+    private String mContentId;
+    private String mName;
+    private ArrayList<String> mFiles;
+    private ArrayList<String> mTextures;
+    private boolean m3D;
+    private boolean mAnimation;
+    private String mFormat;
+    private ArrayList<Float> mRotation;
+    private Number mScale;
+    private String mVersion;
 
     public ContentModel() {
-        content_id = "";
-        content_name = "";
-        content_describe = "";
-        content_url = new ArrayList<String>();
-        texture_url = new ArrayList<String>();
-        content_type = 0;
-        marker_url = "";
-        content_scale = 0;
-        content_rotation_x = 0;
-        content_rotation_y = 0;
-        content_rotation_z = 0;
-        sound_url = "";
-        video_url = "";
-        content_version = "";
+        mContentId = "";
+        mName = "";
+        mFiles = new ArrayList<String>();
+        mTextures = new ArrayList<String>();
+        m3D = true;
+        mAnimation = true;
+        mFormat = "";
+        mRotation = new ArrayList<Float>();
+        mScale = 0;
+        mVersion = "0.0.0";
+    }
+
+    public ContentModel(Map<String, Object> data) {
+        mContentId = (String) data.get("content_id");
+        mName = (String) data.get("name");
+        mFiles = (ArrayList<String>) data.get("files");
+        mTextures = (ArrayList<String>) data.get("textures");
+        m3D = (boolean) data.get("3d");
+        mAnimation = (boolean) data.get("animation");
+        mFormat = (String) data.get("format");
+        mRotation = (ArrayList<Float>) data.get("rotation");
+        mScale = (Number) data.get("scale");
+        mVersion = (String) data.get("version");
     }
 
     public String getContentId() {
-        return content_id;
+        return mContentId;
     }
 
     public String getContentName() {
-        return content_name;
-    }
-
-    public String getContentDescribe() {
-        return content_describe;
+        return mName;
     }
 
     public ArrayList<String> getContentUrl() {
-        return content_url;
+        return mFiles;
     }
 
     public ArrayList<String> getTextureUrl() {
-        return texture_url;
+        return mTextures;
     }
 
-    public Integer getContentType() {
-        return content_type;
+    public boolean get3D() {
+        return m3D;
     }
 
-    public String getMarkerUrl() {
-        return marker_url;
+    public boolean getAnimation() {
+        return mAnimation;
     }
 
-    public float getContentScale() {
-        return content_scale;
+    public String getFormat() {
+        return  mFormat;
     }
 
-    public float getContentRotationX() {
-        return content_rotation_x;
+    public ArrayList<Float> getRotation() {
+        return mRotation;
     }
 
-    public float getContentRotationY() {
-        return content_rotation_y;
+    public Number getContentScale() {
+        return mScale;
     }
 
-    public float getContentRotationZ() {
-        return content_rotation_z;
-    }
-
-    public String getSoundUrl() {
-        return sound_url;
-    }
-
-    public String getVideoUrl() {
-        return video_url;
-    }
-
-    public String getContentVersion() {
-        return content_version;
+    public String getVersion() {
+        return mVersion;
     }
 }
