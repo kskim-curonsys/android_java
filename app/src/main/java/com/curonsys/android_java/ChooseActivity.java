@@ -472,7 +472,7 @@ public class ChooseActivity extends AppCompatActivity
             goTestGetList();
 
         } else if (id == R.id.nav_posttest) {
-            goTestGetContent();
+            goLocation();
 
         } else if (id == R.id.nav_logout) {
             doSignOut();
@@ -511,8 +511,8 @@ public class ChooseActivity extends AppCompatActivity
             mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "\n" + "speed : " + speed + "\n\n";
             mTestResult.setText(mOutput);
 
-            Log.d(TAG, "onLocationChanged(lat): " + latitude);
-            Log.d(TAG, "onLocationChanged(lon): " + longitude);
+            Log.d(TAG, "Lat: " + latitude);
+            Log.d(TAG, "Lon: " + longitude);
             Log.d(TAG, "Test Distance From: " + testdist + "m");
             // lat, lon : 상하, 좌우
             // ++(우상), +-(좌상), -+(우하), --(좌하)
@@ -705,6 +705,16 @@ public class ChooseActivity extends AppCompatActivity
         return true;
     }
 
+    private void doSignOut() {
+        if (checkLogin()) {
+            mAuth.signOut();
+            Snackbar.make(mProfileImage, "Logout Success.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            updateUI();
+        } else {
+            Snackbar.make(mProfileImage, "You are not logged in.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
+    }
+
     private void goLoginStep() {
         // analytics log event test
         Bundle bundle = new Bundle();
@@ -719,42 +729,8 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
-    private void goSignupStep() {
-        Intent intent = new Intent(this, SignupActivity.class);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
-    }
-
-    private void doSignOut() {
-        if (checkLogin()) {
-            mAuth.signOut();
-            Snackbar.make(mProfileImage, "Logout Success.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            updateUI();
-        } else {
-            Snackbar.make(mProfileImage, "You are not logged in.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        }
-    }
-
-    private void goOption() {
-        //Intent intent = new Intent(this, AccountActivity.class);
-        //Intent intent = new Intent(this, MyaccountActivity.class);
-        //Intent intent = new Intent(this, ItemListActivity.class);
-        Intent intent = new Intent(this, ScrollingActivity.class);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
-    }
-
     private void goAccount() {
-        Intent intent = new Intent(this, BottomActivity.class);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
-    }
-
-    private void goARCamera() {
-        Intent intent = new Intent(this, ARCameraActivity.class);
+        Intent intent = new Intent(this, ScrollingActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
@@ -770,6 +746,25 @@ public class ChooseActivity extends AppCompatActivity
         intent.setType("image/*");
         intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
         startActivityForResult(intent, REQUEST_TAKE_ALBUM);
+    }
+
+    private void goARCamera() {
+        Intent intent = new Intent(this, ARCameraActivity.class);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void goOption() {
+        Intent intent = new Intent(this, BottomActivity.class);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private void goLocation() {
+        //findPlace(mTestImage);
+        findPlaceByPicker();
     }
 
     private void goTestUpload() {
@@ -828,7 +823,6 @@ public class ChooseActivity extends AppCompatActivity
                 for (int i = 0; i < ids.size(); i++) {
                     String content_id = ids.get(i);
 
-
                 }
             }
         });
@@ -849,22 +843,18 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestGetList() {
+        //Intent intent = new Intent(this, MyaccountActivity.class);
         Intent intent = new Intent(this, ItemListActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
     }
 
-    private void goTestGetContent() {
-        //findPlace(mTestImage);
-        findPlaceByPicker();
-
-        /*
-        //Intent intent = new Intent(this, MyaccountActivity.class);
-        Intent intent = new Intent(this, MapsActivity.class);
+    private void goSignupStep() {
+        Intent intent = new Intent(this, SignupActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
-        */
     }
+
 }
