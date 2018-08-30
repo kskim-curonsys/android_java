@@ -47,7 +47,11 @@ import com.curonsys.android_java.service.GeofenceTransitionsIntentService;
 import com.curonsys.android_java.utils.Constants;
 import com.curonsys.android_java.utils.DBManager;
 import com.curonsys.android_java.utils.LocationUtil;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -57,6 +61,9 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -94,6 +101,7 @@ public class ChooseActivity extends AppCompatActivity
     private static final int REQUEST_TAKE_PHOTO = 2;
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
+    private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 5;
 
     static final String LOCATION_UPDATE_STATE = "location_update_state";
     static final String LOCATION_HISTORY = "location_histry";
@@ -332,35 +340,45 @@ public class ChooseActivity extends AppCompatActivity
         updateUI();
     }
 
+    public void findPlace(View view) {
+        try {
+            Intent intent =  new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                            //.setFilter(typeFilter)
+                            .build(this);
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+        } catch (GooglePlayServicesRepairableException e) {
+            // TODO: Handle the error.
+            Log.i(TAG, "GooglePlayServicesRepairableException: " + e.getMessage());
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // TODO: Handle the error.
+            Log.i(TAG, "GooglePlayServicesNotAvailableException: " + e.getMessage());
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_TAKE_PHOTO:
-                if (resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_TAKE_PHOTO) {
+        } else if (requestCode == REQUEST_TAKE_ALBUM) {
+        } else if (requestCode == REQUEST_IMAGE_CROP) {
+        } else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
 
-                } else {
+                String info = "Find Place: " + "\n" + place.getName() + "\n" + place.getAddress() +
+                        "\n" + place.getLatLng() + "\n" + place.getViewport();
+                mOutput += info + "\n\n";
+                mTestResult.setText(mOutput);
 
-                }
+                Log.i(TAG, info);
 
-                break;
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
 
-            case REQUEST_TAKE_ALBUM:
-                if (resultCode == Activity.RESULT_OK) {
-
-                } else {
-
-                }
-
-                break;
-
-            case REQUEST_IMAGE_CROP:
-                if (resultCode == Activity.RESULT_OK) {
-
-                } else {
-
-                }
-
-                break;
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
         }
     }
 
@@ -798,16 +816,20 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestGetList() {
-        Intent intent = new Intent(this, MyaccountActivity.class);
+        Intent intent = new Intent(this, ItemListActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
     }
 
     private void goTestGetContent() {
-        Intent intent = new Intent(this, ItemListActivity.class);
+        findPlace(mTestImage);
+        /*
+        Intent intent = new Intent(this, MyaccountActivity.class);
+        //Intent intent = new Intent(this, MapsActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
+        */
     }
 }
