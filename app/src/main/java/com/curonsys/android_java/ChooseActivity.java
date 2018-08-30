@@ -64,6 +64,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -102,6 +103,7 @@ public class ChooseActivity extends AppCompatActivity
     private static final int REQUEST_TAKE_ALBUM = 3;
     private static final int REQUEST_IMAGE_CROP = 4;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 5;
+    private static final int REQUEST_PLACE_PICKER = 6;
 
     static final String LOCATION_UPDATE_STATE = "location_update_state";
     static final String LOCATION_HISTORY = "location_histry";
@@ -347,12 +349,25 @@ public class ChooseActivity extends AppCompatActivity
                             .build(this);
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
-            // TODO: Handle the error.
             Log.i(TAG, "GooglePlayServicesRepairableException: " + e.getMessage());
         } catch (GooglePlayServicesNotAvailableException e) {
-            // TODO: Handle the error.
             Log.i(TAG, "GooglePlayServicesNotAvailableException: " + e.getMessage());
         }
+    }
+
+    public void findPlaceByPicker() {
+        // Construct an intent for the place picker
+        try {
+            PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+            Intent intent = intentBuilder.build(this);
+            startActivityForResult(intent, REQUEST_PLACE_PICKER);
+
+        } catch (GooglePlayServicesRepairableException e) {
+            // ...
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // ...
+        }
+
     }
 
     @Override
@@ -368,17 +383,35 @@ public class ChooseActivity extends AppCompatActivity
                         "\n" + place.getLatLng() + "\n" + place.getViewport();
                 mOutput += info + "\n\n";
                 mTestResult.setText(mOutput);
-
                 Log.i(TAG, info);
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
-                // TODO: Handle the error.
                 Log.i(TAG, status.getStatusMessage());
 
             } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
+                Log.i(TAG, "The user canceled the place operation.");
             }
+        } else if (requestCode == REQUEST_PLACE_PICKER) {
+            if (resultCode == Activity.RESULT_OK) {
+                final Place place = PlacePicker.getPlace(data, this);
+
+                final CharSequence name = place.getName();
+                final CharSequence address = place.getAddress();
+                String attributions = PlacePicker.getAttributions(data);
+                if (attributions == null) {
+                    attributions = "";
+                }
+
+                String info = "Find Place: " + "\n" + place.getName() + "\n" + place.getAddress() +
+                        "\n" + place.getLatLng() + "\n" + place.getViewport();
+                mOutput += info + "\n\n";
+                mTestResult.setText(mOutput);
+                Log.i(TAG, info);
+
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -823,10 +856,12 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestGetContent() {
-        findPlace(mTestImage);
+        //findPlace(mTestImage);
+        findPlaceByPicker();
+
         /*
-        Intent intent = new Intent(this, MyaccountActivity.class);
-        //Intent intent = new Intent(this, MapsActivity.class);
+        //Intent intent = new Intent(this, MyaccountActivity.class);
+        Intent intent = new Intent(this, MapsActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
