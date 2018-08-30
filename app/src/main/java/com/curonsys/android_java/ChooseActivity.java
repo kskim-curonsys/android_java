@@ -303,7 +303,9 @@ public class ChooseActivity extends AppCompatActivity
                 .content("현재 위치를 확인중입니다...")
                 .progress(true, 0);
         mMaterialDialog = mMaterialBuilder.build();
-        mMaterialDialog.show();
+        if (checkLogin()) {
+            mMaterialDialog.show();
+        }
     }
 
     @Override
@@ -574,7 +576,7 @@ public class ChooseActivity extends AppCompatActivity
                                 double longitude = location.getLongitude();
                                 float speed = location.getSpeed();
 
-                                mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n" + " speed : " + speed + "m/s" + "\n\n";
+                                mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n" + "speed : " + speed + "m/s" + "\n\n";
                                 mTestResult.setText(mOutput);
                             }
                         }
