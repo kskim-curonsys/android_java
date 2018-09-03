@@ -1,6 +1,7 @@
 package com.curonsys.android_java.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ContentModel {
@@ -14,6 +15,7 @@ public class ContentModel {
     private ArrayList<Float> mRotation;
     private Number mScale;
     private String mVersion;
+    private String mDownloadedPath;
 
     public ContentModel() {
         mContentId = "";
@@ -26,6 +28,7 @@ public class ContentModel {
         mRotation = new ArrayList<Float>();
         mScale = 0;
         mVersion = "0.0.0";
+        mDownloadedPath = "";
     }
 
     public ContentModel(Map<String, Object> data) {
@@ -39,6 +42,7 @@ public class ContentModel {
         mRotation = (ArrayList<Float>) data.get("rotation");
         mScale = (Number) data.get("scale");
         mVersion = (String) data.get("version");
+        mDownloadedPath = "";
     }
 
     public String getContentId() {
@@ -79,5 +83,26 @@ public class ContentModel {
 
     public String getVersion() {
         return mVersion;
+    }
+
+    public String getDownloadedPath() {
+        return mDownloadedPath;
+    }
+
+    public Map<String, Object> getData() {
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("content_id", mContentId);
+        data.put("name", mName);
+        data.put("files", mFiles);
+        data.put("textures", mTextures);
+        data.put("3d", m3D);
+        data.put("animation", mAnimation);
+        data.put("format", mFormat);
+        data.put("rotation", mRotation);
+        data.put("scale", mScale);
+        data.put("version", mVersion);
+
+        return data;
     }
 }

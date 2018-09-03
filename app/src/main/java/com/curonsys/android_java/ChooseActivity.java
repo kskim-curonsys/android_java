@@ -33,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,11 +76,13 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -117,6 +120,7 @@ public class ChooseActivity extends AppCompatActivity
 
     private FirebaseAuth mAuth;
     private FirebaseStorage mStorage;
+    private StorageReference mStorageRef;
     private FirebaseAnalytics mAnalytics;
 
     private GoogleMap mGoogleMap;
@@ -139,6 +143,7 @@ public class ChooseActivity extends AppCompatActivity
     private TextView mAddressResult;
     private Button mTestLocation;
     private Button mStopLocation;
+    //private ProgressBar mProgressBar;
 
     protected Location mLastLocation = null;
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
@@ -258,6 +263,8 @@ public class ChooseActivity extends AppCompatActivity
         mTestResult = (TextView) findViewById(R.id.test_textview);
         mTestResult.setMovementMethod(new ScrollingMovementMethod());
         mAddressResult = (TextView) findViewById(R.id.address_textview);
+        //mProgressBar= (ProgressBar) findViewById(R.id.indeterminateBar);
+        //mProgressBar.setVisibility(View.VISIBLE);
 
         mTestLocation = (Button) findViewById(R.id.choose_location_btn);
         mTestLocation.setOnClickListener(new View.OnClickListener() {
@@ -324,13 +331,22 @@ public class ChooseActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
         // for abnormal termination
         outState.putBoolean(LOCATION_UPDATE_STATE, mLocationUpdateState);   // test
         outState.putString(LOCATION_HISTORY, mOutput);      // test
 
-        super.onSaveInstanceState(outState);
+        // test download save
+        /*
+        // If there's a download in progress, save the reference so you can query it later
+        if (mStorageRef != null) {
+            outState.putString("reference", mStorageRef.toString());
+        }
+        */
     }
 
+    @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
@@ -342,6 +358,31 @@ public class ChooseActivity extends AppCompatActivity
             mOutput = savedInstanceState.getString("LOCATION_HISTORY");
         }
         updateUI();
+
+        // test download resume
+        /*
+        // If there was a download in progress, get its reference and create a new StorageReference
+        final String stringRef = savedInstanceState.getString("reference");
+        if (stringRef == null) {
+            return;
+        }
+        mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl(stringRef);
+
+        // Find all DownloadTasks under this StorageReference (in this example, there should be one)
+        List<FileDownloadTask> tasks = mStorageRef.getActiveDownloadTasks();
+        if (tasks.size() > 0) {
+            // Get the task monitoring the download
+            FileDownloadTask task = tasks.get(0);
+
+            // Add new listeners to the task using an Activity scope
+            task.addOnSuccessListener(this, new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot state) {
+                    //handleSuccess(state); //call a user defined function to handle the event.
+                }
+            });
+        }
+        */
     }
 
     public void findPlace(View view) {
@@ -677,6 +718,15 @@ public class ChooseActivity extends AppCompatActivity
                     mProfileImage.setImageBitmap(bm);
                     is.close();
 
+                    /*
+                    File imgFile = new  File("/sdcard/Images/test_image.jpg");
+
+                    if(imgFile.exists()){
+                        Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        mTestImage.setImageBitmap(myBitmap);
+                    }
+                    */
+
                     FirebaseUser currentUser = mAuth.getCurrentUser();
                     String email = currentUser.getEmail();
                     //String name = email.substring(0, email.indexOf('@'));
@@ -808,28 +858,65 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestDownload() {
+        //if (checkLogin()) {
+        mStorageRef = mStorage.getReference("models/helicopter/helicopter.jpg");
+        try {
+            File localFile = File.createTempFile("images", "jpg");
+            mStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    // Local temp file has been created
+                    Log.d(TAG, "onSuccess: file download success (" + taskSnapshot.getTotalByteCount() + ", " + localFile.getAbsolutePath() + ")");
+
+                    Bitmap downBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                    mTestImage.setImageBitmap(downBitmap);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                    Log.d(TAG, "onFailure: file download failed (" + exception.getMessage() + ")");
+                }
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        /*
         // test requestmanager
         FirebaseUser currentUser = mAuth.getCurrentUser();
         String userid = currentUser.getUid();
 
-        // user
-        /*
+        // user's contents
         mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
             @Override
             public void onResponse(UserModel response) {
                 Log.d(TAG, "onResponse: ContentListModel (" +
                         response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
 
-                // contents list
+                // contents list (i think this is a bad idea. too many request)
+                ArrayList<ContentModel> list = new ArrayList<ContentModel>();
                 ArrayList<String> ids = response.getContents();
                 for (int i = 0; i < ids.size(); i++) {
                     String content_id = ids.get(i);
 
+                    mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
+                        @Override
+                        public void onResponse(ContentModel response) {
+                            list.add(response);
+
+                            // download files
+
+                        }
+                    });
                 }
             }
         });
         */
 
+        /*
         // content
         String content_id = "ZUZKrsGuGA9DdOwVBiWA";
         mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
@@ -842,6 +929,7 @@ public class ChooseActivity extends AppCompatActivity
                 mTestResult.setText(mOutput);
             }
         });
+        */
     }
 
     private void goTestGetList() {
