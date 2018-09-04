@@ -18,6 +18,9 @@
     <string name="title_sign_in">로그인</string>
     <string name="title_sign_up">가입하기</string>
 
+    <string name="title_activity_generation">Marker Generation</string>
+    <string name="title_activity_test">Marker Test</string>
+
     <string name="comment_sign_in">The technology in this project is to develop an augmented reality-based advertising platform through the production of image based markers.</string>
     <string name="comment_sign_up">As information transmission medium utilizing virtual reality and augmented reality contents has diversified and demand has increased recently, users are forced to use information that is structured by developers.</string>
     <string name="title_activity_choose">ChooseActivity</string>

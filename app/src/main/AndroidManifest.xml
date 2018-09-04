@@ -131,12 +131,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
-
-        <service
-            android:name=".service.FetchAddressIntentService"
-            android:exported="false" />
-        <service android:name=".service.GeofenceTransitionsIntentService" />
-
         <activity
             android:name=".activity.MapsActivity"
             android:label="@string/title_activity_maps">
@@ -144,6 +138,26 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
+        <activity
+            android:name=".activity.MarkerGenerationActivity"
+            android:label="@string/title_activity_generation"
+            android:parentActivityName=".ChooseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
+        </activity>
+        <activity
+            android:name=".activity.MarkerTestActivity"
+            android:label="@string/title_activity_test"
+            android:parentActivityName=".activity.MarkerGenerationActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.activity.MarkerGenerationActivity" />
+        </activity>
+        <service
+            android:name=".service.FetchAddressIntentService"
+            android:exported="false" />
+        <service android:name=".service.GeofenceTransitionsIntentService" />
     </application>
 
 </manifest>

@@ -41,6 +41,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
+import com.curonsys.android_java.model.DownloadModel;
 import com.curonsys.android_java.model.UserContentsModel;
 import com.curonsys.android_java.model.UserModel;
 import com.curonsys.android_java.service.FetchAddressIntentService;
@@ -134,6 +135,8 @@ public class ChooseActivity extends AppCompatActivity
 
     private MaterialDialog mMaterialDialog = null;
     private MaterialDialog.Builder mMaterialBuilder = null;
+    private MaterialDialog mMaterialProgress = null;
+    private MaterialDialog.Builder mMaterialProgressBuilder = null;
 
     private ImageView mTestImage;
     private ImageView mProfileImage;
@@ -305,6 +308,7 @@ public class ChooseActivity extends AppCompatActivity
         getLastLocation();
         updateUI();
 
+        /*
         mMaterialBuilder = new MaterialDialog.Builder(this)
                 .title("위치 수신중")
                 .content("현재 위치를 확인중입니다...")
@@ -313,6 +317,13 @@ public class ChooseActivity extends AppCompatActivity
         if (checkLogin()) {
             mMaterialDialog.show();
         }
+        */
+
+        mMaterialProgressBuilder = new MaterialDialog.Builder(this)
+                .title("컨텐츠 다운로드")
+                .content("컨텐츠 목록을 다운로드중입니다...")
+                .progress(true, 0);
+        mMaterialProgress = mMaterialProgressBuilder.build();
     }
 
     @Override
@@ -531,7 +542,7 @@ public class ChooseActivity extends AppCompatActivity
             double latitude = location.getLatitude();   //위도
             float speed = location.getSpeed();
             //double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
-            mMaterialDialog.dismiss();
+            //mMaterialDialog.dismiss();
 
             LatLng currentLocation = new LatLng(latitude,longitude);
             MarkerOptions markerOptions = new MarkerOptions();
@@ -789,8 +800,11 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+        //Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+
+        Intent intent = new Intent(getApplicationContext(), MarkerGenerationActivity.class);
+        startActivity(intent);
     }
 
     private void goGallery() {
@@ -859,62 +873,12 @@ public class ChooseActivity extends AppCompatActivity
 
     private void goTestDownload() {
         //if (checkLogin()) {
-        mStorageRef = mStorage.getReference("models/helicopter/helicopter.jpg");
-        try {
-            File localFile = File.createTempFile("images", "jpg");
-            mStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    // Local temp file has been created
-                    Log.d(TAG, "onSuccess: file download success (" + taskSnapshot.getTotalByteCount() + ", " + localFile.getAbsolutePath() + ")");
+        mMaterialProgress.show();
 
-                    Bitmap downBitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
-                    mTestImage.setImageBitmap(downBitmap);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
-                    Log.d(TAG, "onFailure: file download failed (" + exception.getMessage() + ")");
-                }
-            });
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        /*
-        // test requestmanager
         FirebaseUser currentUser = mAuth.getCurrentUser();
         String userid = currentUser.getUid();
+        getUserContents(userid);
 
-        // user's contents
-        mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
-            @Override
-            public void onResponse(UserModel response) {
-                Log.d(TAG, "onResponse: ContentListModel (" +
-                        response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
-
-                // contents list (i think this is a bad idea. too many request)
-                ArrayList<ContentModel> list = new ArrayList<ContentModel>();
-                ArrayList<String> ids = response.getContents();
-                for (int i = 0; i < ids.size(); i++) {
-                    String content_id = ids.get(i);
-
-                    mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
-                        @Override
-                        public void onResponse(ContentModel response) {
-                            list.add(response);
-
-                            // download files
-
-                        }
-                    });
-                }
-            }
-        });
-        */
 
         /*
         // content
@@ -947,4 +911,52 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
+    private void getUserContents(String userid) {
+
+        mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
+            @Override
+            public void onResponse(UserModel response) {
+                Log.d(TAG, "onResponse: ContentListModel (" +
+                        response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
+
+                // contents list (i think this is a bad idea. too many request)
+                ArrayList<ContentModel> list = new ArrayList<ContentModel>();
+                ArrayList<String> ids = response.getContents();
+                final int count = ids.size();
+                for (int i = 0; i < count; i++) {
+                    String content_id = ids.get(i);
+
+                    mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
+                        @Override
+                        public void onResponse(ContentModel response) {
+                            list.add(response);
+
+                            if (list.size() == count) {
+                                mMaterialProgress.dismiss();
+                                Log.d(TAG, "onResponse: contents list complete ");
+
+                                ArrayList<String> urls = list.get(0).getContentUrl();
+                                String name = list.get(0).getContentName();
+                                String url = urls.get(0);
+                                mRequestManager.downloadFileFromStorage(name, url, new RequestManager.DownloadCallback() {
+                                    @Override
+                                    public void onResponse(DownloadModel response) {
+                                        //Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
+                                        //mTestImage.setImageBitmap(downBitmap);
+
+                                        Log.d(TAG, "onResponse: content download complete ");
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
+    }
+
+    private void getContentInfo(String contentid) {
+
+    }
 }

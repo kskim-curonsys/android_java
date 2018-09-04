@@ -18,6 +18,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.adapter.ContentsListRecyclerViewAdapter;
 import com.curonsys.android_java.adapter.SimpleItemRecyclerViewAdapter;
 import com.curonsys.android_java.dummy.DummyContent;
@@ -52,6 +53,9 @@ public class ItemListActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private RequestManager mRequestManager;
+
+    private MaterialDialog mMaterialDialog = null;
+    private MaterialDialog.Builder mMaterialBuilder = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,16 +96,17 @@ public class ItemListActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         String userid = currentUser.getUid();
 
-        /*
-        String content_id = "ZUZKrsGuGA9DdOwVBiWA";
-        mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
-            @Override
-            public void onResponse(ContentModel response) {
-                Log.d(TAG, "onResponse: ContentModel (" +
-                        response.getContentId() + ", " + response.getContentName() + ", " + response.getVersion() + ")");
+        mMaterialBuilder = new MaterialDialog.Builder(this)
+                .title("컨텐츠 다운로드")
+                .content("컨텐츠 목록을 다운로드 중입니다...")
+                .progress(true, 0);
+        mMaterialDialog = mMaterialBuilder.build();
+        if (currentUser != null && currentUser.isEmailVerified()) {
+            mMaterialDialog.show();
+        }
 
-            }
-        });
+        /*
+        getContentsList();
         */
 
         //setupRecyclerView((RecyclerView) recyclerView);
@@ -129,4 +134,17 @@ public class ItemListActivity extends AppCompatActivity {
         //recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
         recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(this, mItems, mTwoPane));
     }
+
+    private void getContentsList() {
+        String content_id = "ZUZKrsGuGA9DdOwVBiWA";
+        mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
+            @Override
+            public void onResponse(ContentModel response) {
+                Log.d(TAG, "onResponse: ContentModel (" +
+                        response.getContentId() + ", " + response.getContentName() + ", " + response.getVersion() + ")");
+            }
+        });
+
+    }
 }
+

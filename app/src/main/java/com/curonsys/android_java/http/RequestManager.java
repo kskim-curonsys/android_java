@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
+import com.curonsys.android_java.model.DownloadModel;
 import com.curonsys.android_java.model.MarkerListModel;
 import com.curonsys.android_java.model.MarkerModel;
 import com.curonsys.android_java.model.UserContentsModel;
@@ -27,6 +28,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -64,6 +68,8 @@ public class RequestManager {
     private AsyncHttpClient client;
     private FirebaseFirestore mFirestore;
     private ListenerRegistration mListenerRegistration;
+    private FirebaseStorage mStorage;
+    private StorageReference mStorageRef;
 
     public interface JsonResponseCallback{
         public void onResponse(JSONObject success);
@@ -82,7 +88,7 @@ public class RequestManager {
     }
 
     public interface ContentsListCallback {
-        public void onResponse(ArrayList<ContentsListModel> response);
+        public void onResponse(ArrayList<ContentModel> response);
     }
 
     public interface ContentCallback {
@@ -97,16 +103,18 @@ public class RequestManager {
         public void onResponse(MarkerModel response);
     }
 
-    public interface TransactionCallback {
-        public void onResponse(UserModel response);
-    }
-
     public interface SuccessCallback {
         public void onResponse(boolean success);
     }
 
+    public interface DownloadCallback {
+        public void onResponse(DownloadModel response);
+    }
+
     public RequestManager() {
         mFirestore = FirebaseFirestore.getInstance();
+        mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");
+
     }
 
     public RequestManager(String baseurl) {
@@ -157,7 +165,12 @@ public class RequestManager {
         });
     }
 
-    public void requestGetContentsList() {
+    public void requestGetContentsList(String userid, final ContentsListCallback callback) {
+        // user contents
+
+        // contents info
+
+        // download files
 
     }
 
@@ -309,100 +322,29 @@ public class RequestManager {
         }
     }
 
-
-    /*
-    public void requestContentsOfUser(String subUrl, String id, final JsonResponseCallback callback) throws JSONException{
-        String url = mBaseUrl + subUrl;
-
-        RequestParams params = new RequestParams();
-        params.add("userIdentify",id);
-
-        this.client.get(url, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                callback.onResponse(responseBody);
-
-            }
-        });
-    }
-
-    public void requestInfoOfSelectedContents(String subUrl, String id, final JsonResponseCallback callback) throws JSONException{
-        String url = mBaseUrl + subUrl;
-
-        RequestParams params = new RequestParams();
-        params.add("contentsIndentify",id);
-
-        this.client.get(url, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                callback.onResponse(responseBody);
-
-            }
-        });
-    }
-
-    public void requestMarkerRegistInfo(String subUrl, String imgPath, String user_id, float rating, float longitude, float latitude,
-                                        String contents_id, float contentsScale, float contentsRotateX, float contentsRotateY, float contentsRotateZ,
-                                        final BoolResponseCallback callback) throws IOException{
-
-        String url = mBaseUrl + subUrl;
-
-        RequestParams params = new RequestParams();
-        params.add("usersIndentify", user_id);
-        params.add("contentsIndentify",contents_id);
-        params.put("markerRating",rating);
-        params.put("longitude",longitude);
-        params.put("latitude",latitude);
-        params.put("contentsScale",contentsScale);
-        params.put("contentsRotateX",contentsRotateX);
-        params.put("contentsRotateY",contentsRotateY);
-        params.put("contentsRotateZ",contentsRotateZ);
-
-        //add params of img
+    public void downloadFileFromStorage(String name, String path, final DownloadCallback callback) {
+        mStorageRef = mStorage.getReference(path);
         try {
-            File img = new File(imgPath);
-            params.put("image",img);
-        }catch (FileNotFoundException e){e.printStackTrace();}
+            String suffix = path.substring(path.indexOf('.'), path.length());
+            File localFile = File.createTempFile(name, suffix);
+            mStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    DownloadModel data = new DownloadModel(localFile.getAbsolutePath(), taskSnapshot.getTotalByteCount());
+                    //Log.d(TAG, "onSuccess: file download success (" + taskSnapshot.getTotalByteCount() + ", " + localFile.getAbsolutePath() + ")");
+                    callback.onResponse(data);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                    Log.d(TAG, "onFailure: file download failed (" + exception.getMessage() + ")");
+                }
+            });
 
-        //string data request
-        this.client.get(url, params, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                String result = new String(responseBody);
-                if(result.equals("True"))
-                    callback.onResponse(true);
-                else
-                    callback.onResponse(false);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-            }
-        });
-    }
-
-    public void requestContents(String subUrl, float longitude, float latitude, String imgPath, final JsonResponseCallback callback){
-        String url = mBaseUrl + subUrl;
-
-        RequestParams params = new RequestParams();
-        params.put("longitude",longitude);
-        params.put("latitude",latitude);
-
-        try {
-            File img = new File(imgPath);
-            params.put("image",img);
-        }catch (FileNotFoundException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
-        this.client.get(url, params, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject responseBody) {
-                callback.onResponse(responseBody);
-
-            }
-        });
     }
-    */
+
 }

@@ -15,7 +15,7 @@ public class ContentModel {
     private ArrayList<Float> mRotation;
     private Number mScale;
     private String mVersion;
-    private String mDownloadedPath;
+    private ArrayList<String> mDownloadFiles;
 
     public ContentModel() {
         mContentId = "";
@@ -28,7 +28,7 @@ public class ContentModel {
         mRotation = new ArrayList<Float>();
         mScale = 0;
         mVersion = "0.0.0";
-        mDownloadedPath = "";
+        mDownloadFiles = new ArrayList<String>();
     }
 
     public ContentModel(Map<String, Object> data) {
@@ -42,7 +42,7 @@ public class ContentModel {
         mRotation = (ArrayList<Float>) data.get("rotation");
         mScale = (Number) data.get("scale");
         mVersion = (String) data.get("version");
-        mDownloadedPath = "";
+        mDownloadFiles = new ArrayList<String>();
     }
 
     public String getContentId() {
@@ -85,8 +85,12 @@ public class ContentModel {
         return mVersion;
     }
 
-    public String getDownloadedPath() {
-        return mDownloadedPath;
+    public ArrayList<String> getDownloadFiles() {
+        return mDownloadFiles;
+    }
+
+    public void setDownloadPath(int index, String path) {
+
     }
 
     public Map<String, Object> getData() {
