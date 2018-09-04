@@ -935,18 +935,26 @@ public class ChooseActivity extends AppCompatActivity
                                 mMaterialProgress.dismiss();
                                 Log.d(TAG, "onResponse: contents list complete ");
 
-                                ArrayList<String> urls = list.get(0).getContentUrl();
-                                String name = list.get(0).getContentName();
-                                String url = urls.get(0);
-                                mRequestManager.downloadFileFromStorage(name, url, new RequestManager.DownloadCallback() {
-                                    @Override
-                                    public void onResponse(DownloadModel response) {
-                                        //Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
-                                        //mTestImage.setImageBitmap(downBitmap);
+                                for (int j = 0; j < list.size(); j++) {
+                                    ArrayList<String> urls = list.get(j).getContentUrl();
+                                    String name = list.get(j).getContentName();
 
-                                        Log.d(TAG, "onResponse: content download complete ");
+                                    for (int k = 0; k < urls.size(); k++) {
+                                        String url = urls.get(k);
+                                        String suffix = url.substring(url.indexOf('.'), url.length());
+                                        mRequestManager.downloadFileFromStorage(name, url, suffix, new RequestManager.DownloadCallback() {
+                                            @Override
+                                            public void onResponse(DownloadModel response) {
+                                                if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
+                                                    Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
+                                                    mTestImage.setImageBitmap(downBitmap);
+                                                }
+                                                Log.d(TAG, "onResponse: content download complete ");
+                                            }
+                                        });
                                     }
-                                });
+                                }
+
                             }
                         }
                     });

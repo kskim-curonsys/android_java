@@ -322,22 +322,20 @@ public class RequestManager {
         }
     }
 
-    public void downloadFileFromStorage(String name, String path, final DownloadCallback callback) {
+    public void downloadFileFromStorage(String name, String path, String suffix, final DownloadCallback callback) {
         mStorageRef = mStorage.getReference(path);
         try {
-            String suffix = path.substring(path.indexOf('.'), path.length());
             File localFile = File.createTempFile(name, suffix);
             mStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    DownloadModel data = new DownloadModel(localFile.getAbsolutePath(), taskSnapshot.getTotalByteCount());
+                    DownloadModel data = new DownloadModel(localFile.getAbsolutePath(), suffix, taskSnapshot.getTotalByteCount());
                     //Log.d(TAG, "onSuccess: file download success (" + taskSnapshot.getTotalByteCount() + ", " + localFile.getAbsolutePath() + ")");
                     callback.onResponse(data);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
                     Log.d(TAG, "onFailure: file download failed (" + exception.getMessage() + ")");
                 }
             });
