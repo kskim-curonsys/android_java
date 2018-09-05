@@ -954,12 +954,10 @@ public class ChooseActivity extends AppCompatActivity
                                         });
                                     }
                                 }
-
                             }
                         }
                     });
                 }
-
             }
         });
     }

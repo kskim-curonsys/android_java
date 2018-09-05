@@ -109,7 +109,7 @@ public class ItemListActivity extends AppCompatActivity {
         getContentsList();
         */
 
-        //setupRecyclerView((RecyclerView) recyclerView);
+        setupRecyclerView((RecyclerView) recyclerView);
 
     }
 
@@ -131,8 +131,8 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        //recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
-        recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(this, mItems, mTwoPane));
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        //recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(this, mItems, mTwoPane));
     }
 
     private void getContentsList() {
