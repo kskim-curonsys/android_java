@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.curonsys.android_java.dummy.DummyContent;
 import com.curonsys.android_java.R;
+import com.curonsys.android_java.model.ContentModel;
 
 
 /**
@@ -20,15 +21,9 @@ import com.curonsys.android_java.R;
  * on handsets.
  */
 public class ItemDetailFragment extends Fragment {
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
+
     public static final String ARG_ITEM_ID = "item_id";
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
     private DummyContent.DummyItem mItem;
 
     /**

@@ -25,6 +25,8 @@ import com.curonsys.android_java.dummy.DummyContent;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
+import com.curonsys.android_java.model.DownloadModel;
+import com.curonsys.android_java.model.UserModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -49,12 +51,12 @@ public class ItemListActivity extends AppCompatActivity {
      * device.
      */
     private boolean mTwoPane;
-    private ArrayList<ContentModel> mItems;
+    private ArrayList<ContentModel> mItems = new ArrayList<ContentModel>();
 
     private FirebaseAuth mAuth;
     private RequestManager mRequestManager;
 
-    private MaterialDialog mMaterialDialog = null;
+    private MaterialDialog mMaterialProgress = null;
     private MaterialDialog.Builder mMaterialBuilder = null;
 
     @Override
@@ -88,9 +90,6 @@ public class ItemListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        View recyclerView = findViewById(R.id.item_list);
-        assert recyclerView != null;
-
         mRequestManager = RequestManager.getInstance();
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -100,17 +99,11 @@ public class ItemListActivity extends AppCompatActivity {
                 .title("컨텐츠 다운로드")
                 .content("컨텐츠 목록을 다운로드 중입니다...")
                 .progress(true, 0);
-        mMaterialDialog = mMaterialBuilder.build();
+        mMaterialProgress = mMaterialBuilder.build();
         if (currentUser != null && currentUser.isEmailVerified()) {
-            mMaterialDialog.show();
+            mMaterialProgress.show();
+            getContentsList(userid);
         }
-
-        /*
-        getContentsList();
-        */
-
-        setupRecyclerView((RecyclerView) recyclerView);
-
     }
 
     @Override
@@ -131,20 +124,36 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
-        //recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(this, mItems, mTwoPane));
+        //recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
+        recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(this, mItems, mTwoPane));
     }
 
-    private void getContentsList() {
-        String content_id = "ZUZKrsGuGA9DdOwVBiWA";
-        mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
+    private void getContentsList(String userid) {
+        mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
             @Override
-            public void onResponse(ContentModel response) {
-                Log.d(TAG, "onResponse: ContentModel (" +
-                        response.getContentId() + ", " + response.getContentName() + ", " + response.getVersion() + ")");
+            public void onResponse(UserModel response) {
+                Log.d(TAG, "onResponse: ContentListModel (" +
+                        response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
+                ArrayList<String> ids = response.getContents();
+                final int count = ids.size();
+                for (int i = 0; i < count; i++) {
+                    String content_id = ids.get(i);
+                    mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
+                        @Override
+                        public void onResponse(ContentModel response) {
+                            mItems.add(response);
+                            if (mItems.size() == count) {
+                                mMaterialProgress.dismiss();
+                                Log.d(TAG, "onResponse: contents list complete ");
+                                View recyclerView = findViewById(R.id.item_list);
+                                assert recyclerView != null;
+                                setupRecyclerView((RecyclerView) recyclerView);
+                            }
+                        }
+                    });
+                }
             }
         });
-
     }
 }
 

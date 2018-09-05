@@ -13,6 +13,7 @@ import com.curonsys.android_java.R;
 import com.curonsys.android_java.activity.ItemDetailActivity;
 import com.curonsys.android_java.activity.ItemDetailFragment;
 import com.curonsys.android_java.activity.ItemListActivity;
+import com.curonsys.android_java.fragment.ContentModelDetailFragment;
 import com.curonsys.android_java.model.ContentModel;
 
 import java.util.List;
@@ -29,8 +30,9 @@ public class ContentsListRecyclerViewAdapter
             ContentModel item = (ContentModel) view.getTag();
             if (mTwoPane) {
                 Bundle arguments = new Bundle();
-                arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.getContentId());
-                ItemDetailFragment fragment = new ItemDetailFragment();
+                arguments.putString(ContentModelDetailFragment.ARG_ITEM_ID, item.getContentId());
+                arguments.putSerializable(ContentModelDetailFragment.ARG_ITEM, item);
+                ContentModelDetailFragment fragment = new ContentModelDetailFragment();
                 fragment.setArguments(arguments);
                 mParentActivity.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.item_detail_container, fragment)
@@ -39,7 +41,7 @@ public class ContentsListRecyclerViewAdapter
                 Context context = view.getContext();
                 Intent intent = new Intent(context, ItemDetailActivity.class);
                 intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item.getContentId());
-
+                intent.putExtra(ContentModelDetailFragment.ARG_ITEM, item);
                 context.startActivity(intent);
             }
         }

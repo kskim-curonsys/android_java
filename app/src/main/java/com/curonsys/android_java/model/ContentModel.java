@@ -1,10 +1,11 @@
 package com.curonsys.android_java.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ContentModel {
+public class ContentModel implements Serializable {
     private String mContentId;
     private String mName;
     private ArrayList<String> mFiles;
