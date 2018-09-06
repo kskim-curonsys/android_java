@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.activity.ItemDetailActivity;
-import com.curonsys.android_java.activity.ItemDetailFragment;
 import com.curonsys.android_java.activity.ItemListActivity;
 import com.curonsys.android_java.fragment.ContentModelDetailFragment;
 import com.curonsys.android_java.model.ContentModel;
@@ -35,12 +34,12 @@ public class ContentsListRecyclerViewAdapter
                 ContentModelDetailFragment fragment = new ContentModelDetailFragment();
                 fragment.setArguments(arguments);
                 mParentActivity.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.item_detail_container, fragment)
+                        .add(R.id.item_detail_container, fragment)
                         .commit();
             } else {
                 Context context = view.getContext();
                 Intent intent = new Intent(context, ItemDetailActivity.class);
-                intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item.getContentId());
+                intent.putExtra(ContentModelDetailFragment.ARG_ITEM_ID, item.getContentId());
                 intent.putExtra(ContentModelDetailFragment.ARG_ITEM, item);
                 context.startActivity(intent);
             }

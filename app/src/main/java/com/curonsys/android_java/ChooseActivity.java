@@ -912,33 +912,26 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void getUserContents(String userid) {
-
         mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
             @Override
             public void onResponse(UserModel response) {
                 Log.d(TAG, "onResponse: ContentListModel (" +
                         response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
-
-                // contents list (i think this is a bad idea. too many request)
                 ArrayList<ContentModel> list = new ArrayList<ContentModel>();
                 ArrayList<String> ids = response.getContents();
                 final int count = ids.size();
                 for (int i = 0; i < count; i++) {
                     String content_id = ids.get(i);
-
                     mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
                         @Override
                         public void onResponse(ContentModel response) {
                             list.add(response);
-
                             if (list.size() == count) {
                                 mMaterialProgress.dismiss();
                                 Log.d(TAG, "onResponse: contents list complete ");
-
                                 for (int j = 0; j < list.size(); j++) {
                                     ArrayList<String> urls = list.get(j).getContentUrl();
                                     String name = list.get(j).getContentName();
-
                                     for (int k = 0; k < urls.size(); k++) {
                                         String url = urls.get(k);
                                         String suffix = url.substring(url.indexOf('.'), url.length());
