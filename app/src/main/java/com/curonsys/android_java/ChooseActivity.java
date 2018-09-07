@@ -33,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -803,8 +804,12 @@ public class ChooseActivity extends AppCompatActivity
         //Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         //startActivityForResult(intent, REQUEST_TAKE_PHOTO);
 
-        Intent intent = new Intent(getApplicationContext(), MarkerGenerationActivity.class);
-        startActivity(intent);
+        if (checkLogin()) {
+            Intent intent = new Intent(getApplicationContext(), MarkerGenerationActivity.class);
+            startActivity(intent);
+        } else {
+            Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
     }
 
     private void goGallery() {
@@ -872,13 +877,15 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestDownload() {
-        //if (checkLogin()) {
-        mMaterialProgress.show();
+        if (checkLogin()) {
+            mMaterialProgress.show();
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        String userid = currentUser.getUid();
-        getUserContents(userid);
-
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            String userid = currentUser.getUid();
+            getUserContents(userid);
+        } else {
+            Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
 
         /*
         // content
@@ -897,10 +904,14 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goTestGetList() {
-        //Intent intent = new Intent(this, MyaccountActivity.class);
-        Intent intent = new Intent(this, ItemListActivity.class);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
+        if (checkLogin()) {
+            //Intent intent = new Intent(this, MyaccountActivity.class);
+            Intent intent = new Intent(this, ItemListActivity.class);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
+        } else {
+            Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
     }
 
@@ -956,6 +967,7 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void getContentInfo(String contentid) {
+        //ListView list;
 
     }
 }
