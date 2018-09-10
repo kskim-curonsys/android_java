@@ -21,18 +21,20 @@ public final class Constants {
     public static final HashMap<String, LatLng> BAY_AREA_LANDMARKS = new HashMap<>();
 
     static {
+        // SCNU_MUSEUM
+        BAY_AREA_LANDMARKS.put("SCNU_MUSEUM", new LatLng(34.9691898, 127.48182419));
+
         // Curonsys
         BAY_AREA_LANDMARKS.put("CURONSYS", new LatLng(34.9471727, 127.6876304));
 
         // Home_APT
-        BAY_AREA_LANDMARKS.put("HOME_APT", new LatLng(34.951302, 127.689964));
+        //BAY_AREA_LANDMARKS.put("HOME_APT", new LatLng(34.951302, 127.689964));
 
         // San Francisco International Airport.
-        BAY_AREA_LANDMARKS.put("SFO", new LatLng(37.621313, -122.378955));
+        //BAY_AREA_LANDMARKS.put("SFO", new LatLng(37.621313, -122.378955));
 
         // Googleplex.
-        BAY_AREA_LANDMARKS.put("GOOGLE", new LatLng(37.422611,-122.0840577));
-
+        //BAY_AREA_LANDMARKS.put("GOOGLE", new LatLng(37.422611,-122.0840577));
     }
 }
 
