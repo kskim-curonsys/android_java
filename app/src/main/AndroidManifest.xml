@@ -154,10 +154,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.activity.MarkerGenerationActivity" />
         </activity>
+
         <service
             android:name=".service.FetchAddressIntentService"
             android:exported="false" />
         <service android:name=".service.GeofenceTransitionsIntentService" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.curonsys.android_java"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

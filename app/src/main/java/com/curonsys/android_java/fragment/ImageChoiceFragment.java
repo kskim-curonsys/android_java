@@ -51,7 +51,6 @@ public class ImageChoiceFragment extends Fragment{
     CheckingAsyncTask myAsyncTask;
     DBManager dbManager = DBManager.getInstance();
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -139,8 +138,18 @@ public class ImageChoiceFragment extends Fragment{
                     dbManager.generatorId = "admin";
                     try{
                         inputImage=MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(),albumURI);
-                        myAsyncTask = new CheckingAsyncTask();
-                        myAsyncTask.execute();
+                        //myAsyncTask = new CheckingAsyncTask();
+                        //myAsyncTask.execute();
+
+                        Double value = new Double(2.5);
+                        dbManager.markerRating = value.doubleValue();
+                        ratingBar.setVisibility(View.VISIBLE);
+                        ratingBar.setRating(value.floatValue());
+
+                        Button nextStepBtn = mActivity.findViewById(R.id.nextstepBtn);
+                        nextStepBtn.setClickable(true);
+                        nextStepBtn.setEnabled(true);
+
                     }catch(FileNotFoundException e){
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -152,8 +161,6 @@ public class ImageChoiceFragment extends Fragment{
                 }
         }
     }
-
-
 
     @Override
     public void onAttach(Activity activity) {

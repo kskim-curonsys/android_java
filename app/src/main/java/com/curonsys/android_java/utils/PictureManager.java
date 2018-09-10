@@ -19,6 +19,11 @@ import java.util.Date;
  */
 
 public class PictureManager {
+    private static final int MY_PERMISSION_STORAGE = 1;
+    private static final int REQUEST_TAKE_PHOTO = 2;
+    private static final int REQUEST_TAKE_ALBUM = 3;
+    private static final int REQUEST_IMAGE_CROP = 4;
+
     Context context;
     File albumFile = null;
     Uri albumURI,photoURI;
@@ -44,7 +49,13 @@ public class PictureManager {
                 if(photoFile!=null){
                     // getUriForFile의 두 번째 인자는 Manifest provier의 authorites와 일치해야 함
 
-                    Uri providerURI= ContentUriProvider.getUriForFile(this.context,this.context.getPackageName(),photoFile);
+                    String filepath = this.context.getFilesDir().getPath();
+                    String cachepath = this.context.getCacheDir().getPath();
+                    String externalstoragedir = Environment.getExternalStorageDirectory().getPath();
+                    String externalfiledir = this.context.getExternalFilesDir(null).getPath();
+                    String cachedir = this.context.getExternalCacheDir().getPath();
+
+                    Uri providerURI= ContentUriProvider.getUriForFile(this.context, this.context.getPackageName(), photoFile);
 //                    imageUri=providerURI;
 
                     // 인텐트에 전달할 때는 FileProvier의 Return값인 content://로만!!, providerURI의 값에 카메라 데이터를 넣어 보냄
@@ -53,7 +64,6 @@ public class PictureManager {
                     this.photoURI = providerURI;
 
                     return takePictureIntent;
-
 //                    startActivityForResult(takePictureIntent,REQUEST_TAKE_PHOTO);
                 }
             }
@@ -63,7 +73,6 @@ public class PictureManager {
         }
         return null;
     }
-
 
     public File createImageFile()throws IOException{
         // Create an image file name
@@ -111,9 +120,6 @@ public class PictureManager {
 
         }catch (IOException e){e.printStackTrace();}
 
-
-
-
         this.albumURI=Uri.fromFile(this.albumFile);
         Log.i("cropImage","Call");
         Log.i("cropImage","photoURI : "+photoURI+" / albumURI : "+albumURI);
@@ -130,7 +136,7 @@ public class PictureManager {
         cropIntent.putExtra("aspectY",1); // crop 박스의 y축 비율
         cropIntent.putExtra("scale",true);
         cropIntent.putExtra("output",albumURI); // 크랍된 이미지를 해당 경로에 저장
-//        startActivityForResult(cropIntent,REQUEST_IMAGE_CROP);
+        //startActivityForResult(cropIntent, REQUEST_IMAGE_CROP);
         return cropIntent;
     }
 
