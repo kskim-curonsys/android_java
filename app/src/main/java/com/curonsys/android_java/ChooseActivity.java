@@ -905,7 +905,6 @@ public class ChooseActivity extends AppCompatActivity
 
     private void goTestGetList() {
         if (checkLogin()) {
-            //Intent intent = new Intent(this, MyaccountActivity.class);
             Intent intent = new Intent(this, ItemListActivity.class);
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);

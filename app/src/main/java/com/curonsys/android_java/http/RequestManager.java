@@ -18,12 +18,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
@@ -155,6 +157,7 @@ public class RequestManager {
 
     public void requestGetContentInfo(String contentid, final ContentCallback callback) {
         DocumentReference docRef = mFirestore.collection("models").document(contentid);
+
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -165,13 +168,75 @@ public class RequestManager {
         });
     }
 
-    public void requestGetContentsList(String userid, final ContentsListCallback callback) {
-        // user contents
+    public void requestGetContentsList(ArrayList<String> ids, final ContentsListCallback callback) {
+        // 1. query with conditions
+        /*
+        Query query = mFirestore.collection("models");
+        String condition = "";
 
-        // contents info
+        query = query.whereArrayContains("content_id", condition);
 
-        // download files
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    ArrayList<ContentModel> list = new ArrayList<ContentModel>();
 
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Log.d(TAG, document.getId() + " => " + document.getData());
+
+                        ContentModel model = new ContentModel(document.getData());
+                        list.add(model);
+                    }
+                    callback.onResponse(list);
+
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+        */
+
+        // 2. get all docs, compare each docs
+        mFirestore.collection("models")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            ArrayList<ContentModel> list = new ArrayList<ContentModel>();
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                if (ids.contains(document.getId())) {
+                                    ContentModel model = new ContentModel(document.getData());
+                                    list.add(model);
+                                }
+                            }
+                            callback.onResponse(list);
+
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void requestGetAllContents() {
+        mFirestore.collection("models")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 
     public void requestSetContentInfo(ContentModel data, final ContentCallback callback) {

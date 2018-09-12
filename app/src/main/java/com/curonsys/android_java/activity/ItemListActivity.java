@@ -138,6 +138,12 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+        /*
+        ItemListActivity
+         -> recyclerView.setAdapter
+            -> ItemDetailActivity
+               -> ContentModelDetailFragment
+         */
         //recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, DummyContent.ITEMS, mTwoPane));
         recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(this, mItems, mTwoPane));
     }
@@ -150,22 +156,20 @@ public class ItemListActivity extends AppCompatActivity {
                         response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
                 ArrayList<String> ids = response.getContents();
                 final int count = ids.size();
-                for (int i = 0; i < count; i++) {
-                    String content_id = ids.get(i);
-                    mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
-                        @Override
-                        public void onResponse(ContentModel response) {
-                            mItems.add(response);
-                            if (mItems.size() == count) {
-                                mMaterialProgress.dismiss();
-                                Log.d(TAG, "onResponse: contents list complete ");
-                                View recyclerView = findViewById(R.id.item_list);
-                                assert recyclerView != null;
-                                setupRecyclerView((RecyclerView) recyclerView);
-                            }
-                        }
-                    });
-                }
+
+                mRequestManager.requestGetContentsList(ids, new RequestManager.ContentsListCallback() {
+                    @Override
+                    public void onResponse(ArrayList<ContentModel> response) {
+                        int result_count = response.size();
+                        mItems = response;
+
+                        mMaterialProgress.dismiss();
+                        Log.d(TAG, "onResponse: contents list complete ");
+                        View recyclerView = findViewById(R.id.item_list);
+                        assert recyclerView != null;
+                        setupRecyclerView((RecyclerView) recyclerView);
+                    }
+                });
             }
         });
     }
