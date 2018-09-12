@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,10 +13,12 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -43,6 +46,7 @@ import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
 import com.curonsys.android_java.model.DownloadModel;
+import com.curonsys.android_java.model.TransferModel;
 import com.curonsys.android_java.model.UserContentsModel;
 import com.curonsys.android_java.model.UserModel;
 import com.curonsys.android_java.service.FetchAddressIntentService;
@@ -88,6 +92,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,8 +139,6 @@ public class ChooseActivity extends AppCompatActivity
     private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
     private PendingIntent mGeofencePendingIntent;
 
-    private MaterialDialog mMaterialDialog = null;
-    private MaterialDialog.Builder mMaterialBuilder = null;
     private MaterialDialog mMaterialProgress = null;
     private MaterialDialog.Builder mMaterialProgressBuilder = null;
 
@@ -147,7 +150,6 @@ public class ChooseActivity extends AppCompatActivity
     private TextView mAddressResult;
     private Button mTestLocation;
     private Button mStopLocation;
-    //private ProgressBar mProgressBar;
 
     protected Location mLastLocation = null;
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
@@ -156,18 +158,15 @@ public class ChooseActivity extends AppCompatActivity
         public AddressResultReceiver(Handler handler) {
             super(handler);
         }
-
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultData == null) {
                 return;
             }
-
             mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
             if (mAddressOutput == null) {
                 mAddressOutput = "";
             }
-
             if (resultCode == Constants.SUCCESS_RESULT) {
                 updateUI();
             }
@@ -176,7 +175,6 @@ public class ChooseActivity extends AppCompatActivity
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
@@ -205,9 +203,6 @@ public class ChooseActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottomnavigation);
-        //navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -234,7 +229,6 @@ public class ChooseActivity extends AppCompatActivity
                 super.onDrawerClosed(view);
                 updateUI();
             }
-
             public void onDrawerOpened(View view) {
                 super.onDrawerOpened(view);
                 updateUI();
@@ -267,27 +261,22 @@ public class ChooseActivity extends AppCompatActivity
         mTestResult = (TextView) findViewById(R.id.test_textview);
         mTestResult.setMovementMethod(new ScrollingMovementMethod());
         mAddressResult = (TextView) findViewById(R.id.address_textview);
-        //mProgressBar= (ProgressBar) findViewById(R.id.indeterminateBar);
-        //mProgressBar.setVisibility(View.VISIBLE);
 
         mTestLocation = (Button) findViewById(R.id.choose_location_btn);
         mTestLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: Test Location");
-
                 getLastLocation();
                 if (mLastLocation == null) {
                     return;
                 }
-
                 if (!Geocoder.isPresent()) {
                     Toast.makeText(ChooseActivity.this,
                             R.string.no_geocoder_available,
                             Toast.LENGTH_LONG).show();
                     return;
                 }
-
                 startFetchAddressIntentService();
                 updateUI();
                 startMonitorGeofences();
@@ -299,7 +288,6 @@ public class ChooseActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: Stop Location");
-
                 stopLocationUpdate();
                 stopMonitorGeofences();
             }
@@ -308,17 +296,6 @@ public class ChooseActivity extends AppCompatActivity
         mLocationUpdateState = true;    // temp: default set
         getLastLocation();
         updateUI();
-
-        /*
-        mMaterialBuilder = new MaterialDialog.Builder(this)
-                .title("위치 수신중")
-                .content("현재 위치를 확인중입니다...")
-                .progress(true, 0);
-        mMaterialDialog = mMaterialBuilder.build();
-        if (checkLogin()) {
-            mMaterialDialog.show();
-        }
-        */
 
         mMaterialProgressBuilder = new MaterialDialog.Builder(this)
                 .title("컨텐츠 다운로드")
@@ -422,13 +399,50 @@ public class ChooseActivity extends AppCompatActivity
         } catch (GooglePlayServicesNotAvailableException e) {
             // ...
         }
-
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO) {
         } else if (requestCode == REQUEST_TAKE_ALBUM) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data.getData() != null) {
+                    try {
+                        Uri photoURI = data.getData();
+                        Cursor returnCursor =
+                                getContentResolver().query(photoURI, null, null, null, null);
+                        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                        returnCursor.moveToFirst();
+                        String name = returnCursor.getString(nameIndex);
+                        long size = returnCursor.getLong(sizeIndex);
+                        String path = photoURI.getPath();
+                        String suffix = name.substring(name.indexOf('.'), name.length());
+
+                        Map<String, Object> values = new HashMap<>();
+                        values.put("path", path);
+                        values.put("name", name);
+                        values.put("suffix", suffix);
+                        values.put("size", size);
+
+                        TransferModel model = new TransferModel(values);
+
+                        // upload test
+                        mRequestManager.requestUploadFileToStorage(model, photoURI, new RequestManager.SuccessCallback() {
+                            @Override
+                            public void onResponse(boolean success) {
+                                Toast.makeText(ChooseActivity.this,
+                                        "photo upload success.",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        Log.e("TAKE_ALBUM getData failed. ", e.toString());
+                    }
+                }
+            }
+
         } else if (requestCode == REQUEST_IMAGE_CROP) {
         } else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
@@ -543,7 +557,6 @@ public class ChooseActivity extends AppCompatActivity
             double latitude = location.getLatitude();   //위도
             float speed = location.getSpeed();
             //double altitude = location.getAltitude();   //고도//          float accuracy = location.getAccuracy();    //정확도//            String provider = location.getProvider();   //위치제공자
-            //mMaterialDialog.dismiss();
 
             LatLng currentLocation = new LatLng(latitude,longitude);
             MarkerOptions markerOptions = new MarkerOptions();
@@ -853,15 +866,12 @@ public class ChooseActivity extends AppCompatActivity
             uploadTask.addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
-                    // Handle unsuccessful uploads
                     Snackbar.make(mProfileImage, "Storage Upload Failed !!!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                 }
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
                     Snackbar.make(mProfileImage, "Storage Upload Success.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-
                     // test result
                     String result = "Upload Success." + "\n" +
                             "file url : images/lake.png" + "\n" +
@@ -945,9 +955,9 @@ public class ChooseActivity extends AppCompatActivity
                                     for (int k = 0; k < urls.size(); k++) {
                                         String url = urls.get(k);
                                         String suffix = url.substring(url.indexOf('.'), url.length());
-                                        mRequestManager.downloadFileFromStorage(name, url, suffix, new RequestManager.DownloadCallback() {
+                                        mRequestManager.requesetDownloadFileFromStorage(name, url, suffix, new RequestManager.TransferCallback() {
                                             @Override
-                                            public void onResponse(DownloadModel response) {
+                                            public void onResponse(TransferModel response) {
                                                 if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
                                                     Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
                                                     mTestImage.setImageBitmap(downBitmap);

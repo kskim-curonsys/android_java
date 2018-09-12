@@ -1,6 +1,7 @@
 package com.curonsys.android_java.http;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -11,6 +12,7 @@ import com.curonsys.android_java.model.ContentsListModel;
 import com.curonsys.android_java.model.DownloadModel;
 import com.curonsys.android_java.model.MarkerListModel;
 import com.curonsys.android_java.model.MarkerModel;
+import com.curonsys.android_java.model.TransferModel;
 import com.curonsys.android_java.model.UserContentsModel;
 import com.curonsys.android_java.model.UserModel;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,7 +34,9 @@ import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -57,6 +61,7 @@ import cz.msebera.android.httpclient.Header;
 public class RequestManager {
     private static final String TAG = RequestManager.class.getSimpleName();
 
+    private static final String STORAGE_URL = "gs://my-first-project-7e28c.appspot.com";
     private static String mBaseUrl = "https://kskim-curonsys.com";
 
     private static RequestManager mInstance;
@@ -71,19 +76,7 @@ public class RequestManager {
     private FirebaseFirestore mFirestore;
     private ListenerRegistration mListenerRegistration;
     private FirebaseStorage mStorage;
-    private StorageReference mStorageRef;
-
-    public interface JsonResponseCallback{
-        public void onResponse(JSONObject success);
-    }
-
-    public interface BoolResponseCallback{
-        public void onResponse(Boolean success);
-    }
-
-    public interface StringResponseCallback{
-        public void onResponse(String success);
-    }
+    UploadTask mUploadTask;
 
     public interface UserCallback {
         public void onResponse(UserModel response);
@@ -105,18 +98,17 @@ public class RequestManager {
         public void onResponse(MarkerModel response);
     }
 
+    public interface TransferCallback {
+        public void onResponse(TransferModel response);
+    }
+
     public interface SuccessCallback {
         public void onResponse(boolean success);
     }
 
-    public interface DownloadCallback {
-        public void onResponse(DownloadModel response);
-    }
-
     public RequestManager() {
         mFirestore = FirebaseFirestore.getInstance();
-        mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");
-
+        mStorage = FirebaseStorage.getInstance(STORAGE_URL);
     }
 
     public RequestManager(String baseurl) {
@@ -136,7 +128,7 @@ public class RequestManager {
         });
     }
 
-    public void requestSetUserInfo(UserModel data, final UserCallback callback) {
+    public void requestSetUserInfo(UserModel data, final SuccessCallback callback) {
         Map<String, Object> user = data.getData();
 
         mFirestore.collection("users").document(data.getUserId())
@@ -145,12 +137,14 @@ public class RequestManager {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "User data successfully written!");
+                        callback.onResponse(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error writing user document", e);
+                        callback.onResponse(false);
                     }
                 });
     }
@@ -169,35 +163,8 @@ public class RequestManager {
     }
 
     public void requestGetContentsList(ArrayList<String> ids, final ContentsListCallback callback) {
-        // 1. query with conditions
-        /*
-        Query query = mFirestore.collection("models");
-        String condition = "";
-
-        query = query.whereArrayContains("content_id", condition);
-
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    ArrayList<ContentModel> list = new ArrayList<ContentModel>();
-
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Log.d(TAG, document.getId() + " => " + document.getData());
-
-                        ContentModel model = new ContentModel(document.getData());
-                        list.add(model);
-                    }
-                    callback.onResponse(list);
-
-                } else {
-                    Log.d(TAG, "Error getting documents: ", task.getException());
-                }
-            }
-        });
-        */
-
-        // 2. get all docs, compare each docs
+        // get all docs, compare each doc's id
+        // - todo: If there are so many items, ..?
         mFirestore.collection("models")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -222,16 +189,22 @@ public class RequestManager {
                 });
     }
 
-    public void requestGetAllContents() {
+    public void requestGetAllContents(final ContentsListCallback callback) {
         mFirestore.collection("models")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            ArrayList<ContentModel> list = new ArrayList<ContentModel>();
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
+                                ContentModel model = new ContentModel(document.getData());
+                                list.add(model);
                             }
+                            callback.onResponse(list);
+
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
@@ -239,7 +212,7 @@ public class RequestManager {
                 });
     }
 
-    public void requestSetContentInfo(ContentModel data, final ContentCallback callback) {
+    public void requestSetContentInfo(ContentModel data, final SuccessCallback callback) {
         Map<String, Object> content = data.getData();
 
         mFirestore.collection("models").document(data.getContentId())
@@ -248,19 +221,19 @@ public class RequestManager {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Content data successfully written!");
+                        callback.onResponse(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error writing content document", e);
+                        callback.onResponse(false);
                     }
                 });
     }
 
     public void requestGetMarkerList(LatLng location, String city, final MarkerListCallback callback) {
-        ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
-
         mFirestore.collection("markers")
                 .whereEqualTo("city", city)
                 .get()
@@ -268,12 +241,15 @@ public class RequestManager {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            ArrayList<MarkerModel> list = new ArrayList<MarkerModel>();
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 MarkerModel data = new MarkerModel(document.getData());
                                 list.add(data);
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                             }
                             callback.onResponse(list);
+
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
@@ -293,7 +269,7 @@ public class RequestManager {
         });
     }
 
-    public void requestSetMarkerInfo(MarkerModel data, final MarkerCallback callback) {
+    public void requestSetMarkerInfo(MarkerModel data, final SuccessCallback callback) {
         Map<String, Object> marker = data.getData();
 
         mFirestore.collection("markers").document(data.getMarkerId())
@@ -302,12 +278,14 @@ public class RequestManager {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Marker data successfully written!");
+                        callback.onResponse(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w(TAG, "Error writing marker document", e);
+                        callback.onResponse(false);
                     }
                 });
     }
@@ -387,21 +365,31 @@ public class RequestManager {
         }
     }
 
-    public void downloadFileFromStorage(String name, String path, String suffix, final DownloadCallback callback) {
-        mStorageRef = mStorage.getReference(path);
+    public void requesetDownloadFileFromStorage(String name, String path, String suffix, final TransferCallback callback) {
+        StorageReference downRef = mStorage.getReference(path);
         try {
             File localFile = File.createTempFile(name, suffix);
-            mStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            downRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    DownloadModel data = new DownloadModel(localFile.getAbsolutePath(), suffix, taskSnapshot.getTotalByteCount());
-                    //Log.d(TAG, "onSuccess: file download success (" + taskSnapshot.getTotalByteCount() + ", " + localFile.getAbsolutePath() + ")");
+                    Log.d(TAG, "onSuccess: file download success (" + taskSnapshot.getTotalByteCount() + ", " + localFile.getAbsolutePath() + ")");
+                    Map<String, Object> values = new HashMap<>();
+                    values.put("path", localFile.getAbsolutePath());
+                    values.put("suffix", suffix);
+                    values.put("size", taskSnapshot.getTotalByteCount());
+
+                    TransferModel data = new TransferModel(values);
                     callback.onResponse(data);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     Log.d(TAG, "onFailure: file download failed (" + exception.getMessage() + ")");
+                    Map<String, Object> values = new HashMap<>();
+                    values.put("error", exception.getMessage());
+
+                    TransferModel data = new TransferModel(values);
+                    callback.onResponse(data);
                 }
             });
 
@@ -410,4 +398,42 @@ public class RequestManager {
         }
     }
 
+    public void requestUploadFileToStorage(TransferModel model, final SuccessCallback callback) {
+        Uri uri = Uri.fromFile(new File(model.getPath()));
+        StorageReference ref = mStorage.getReference();
+        StorageReference upRef = ref.child("images/" + model.getName());
+
+        mUploadTask = upRef.putFile(uri);
+        mUploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                callback.onResponse(false);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                //StorageMetadata meta = taskSnapshot.getMetadata();
+                callback.onResponse(true);
+            }
+        });
+    }
+
+    public void requestUploadFileToStorage(TransferModel model, Uri uri, final SuccessCallback callback) {
+        StorageReference ref = mStorage.getReference();
+        StorageReference upRef = ref.child("images/" + model.getName());
+
+        mUploadTask = upRef.putFile(uri);
+        mUploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                callback.onResponse(false);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                //StorageMetadata meta = taskSnapshot.getMetadata();
+                callback.onResponse(true);
+            }
+        });
+    }
 }

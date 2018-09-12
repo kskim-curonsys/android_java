@@ -155,12 +155,10 @@ public class ItemListActivity extends AppCompatActivity {
                 Log.d(TAG, "onResponse: ContentListModel (" +
                         response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
                 ArrayList<String> ids = response.getContents();
-                final int count = ids.size();
 
                 mRequestManager.requestGetContentsList(ids, new RequestManager.ContentsListCallback() {
                     @Override
                     public void onResponse(ArrayList<ContentModel> response) {
-                        int result_count = response.size();
                         mItems = response;
 
                         mMaterialProgress.dismiss();
@@ -175,7 +173,6 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void updateList() {
-
         mSwipeRefreshLayout.setRefreshing(false);
     }
 }
