@@ -11,6 +11,9 @@ public final class Constants {
     public static final String PACKAGE_NAME = "com.curonsys.android_java";
     public static final String RECEIVER = PACKAGE_NAME + ".RECEIVER";
     public static final String RESULT_DATA_KEY = PACKAGE_NAME + ".RESULT_DATA_KEY";
+    public static final String RESULT_COUNTRY_KEY = PACKAGE_NAME + ".RESULT_COUNTRY_KEY";
+    public static final String RESULT_LOCALITY_KEY = PACKAGE_NAME + ".RESULT_LOCALITY_KEY";
+    public static final String RESULT_THOROUGHFARE_KEY = PACKAGE_NAME + ".RESULT_THOROUGHFARE_KEY";
     public static final String LOCATION_DATA_EXTRA = PACKAGE_NAME + ".LOCATION_DATA_EXTRA";
 
     public static final long GEOFENCE_EXPIRATION_IN_HOUR = 1;

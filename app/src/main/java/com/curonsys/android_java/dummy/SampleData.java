@@ -18,7 +18,7 @@ public class SampleData {
             R.drawable.froyo};
 
     //contentId
-    public static Integer[] id_ = {0, 1, 2, 3};
+    public static String[] id_ = {"0", "1", "2", "3"};
     //contentFileName
     public static String[] contentFileName = {"snake.jet","car.jet","helicopter.jet","bigben.jet"};
     public static ArrayList<String[]> contentTextureFiles = new ArrayList<>();

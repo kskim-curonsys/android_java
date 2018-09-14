@@ -37,7 +37,7 @@ public class FetchAddressIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        Geocoder geocoder = new Geocoder(this, new Locale("en"));   //Locale.getDefault()
 
         if (intent == null) {
             return;
@@ -83,9 +83,16 @@ public class FetchAddressIntentService extends IntentService {
             for(int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
                 addressFragments.add(address.getAddressLine(i));
             }
+            addressFragments.add(address.getPostalCode());
             Log.i(TAG, getString(R.string.address_found));
-            deliverResultToReceiver(Constants.SUCCESS_RESULT,
-                    TextUtils.join(System.getProperty("line.separator"), addressFragments));
+            //deliverResultToReceiver(Constants.SUCCESS_RESULT, TextUtils.join(System.getProperty("line.separator"), addressFragments));
+
+            Bundle bundle = new Bundle();
+            bundle.putString(Constants.RESULT_DATA_KEY, TextUtils.join(System.getProperty("line.separator"), addressFragments));
+            bundle.putString(Constants.RESULT_COUNTRY_KEY, address.getCountryCode());
+            bundle.putString(Constants.RESULT_LOCALITY_KEY, address.getLocality());
+            bundle.putString(Constants.RESULT_THOROUGHFARE_KEY, address.getThoroughfare());
+            mReceiver.send(Constants.SUCCESS_RESULT, bundle);
         }
     }
 

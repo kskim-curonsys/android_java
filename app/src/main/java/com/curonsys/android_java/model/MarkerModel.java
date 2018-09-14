@@ -12,13 +12,10 @@ public class MarkerModel {
     private String mFile;
     private float mRating;
     private GeoPoint mGeoPoint;
-    private double mLatitude;
-    private double mLongitude;
     private String mContentId;
     private ArrayList<Float> mContentRotation;
     private float mContentScale;
     private ArrayList<String> mAdditionalMediaId;
-    private String mDownloadedPath;
 
     public MarkerModel() {
         mMarkerId = "";
@@ -30,7 +27,6 @@ public class MarkerModel {
         mContentRotation = new ArrayList<Float>();
         mContentScale = 0;
         mAdditionalMediaId = new ArrayList<String>();
-        mDownloadedPath = "";
     }
 
     public MarkerModel(Map<String, Object> data) {
@@ -43,7 +39,10 @@ public class MarkerModel {
         mContentRotation = (ArrayList<Float>) data.get("content_rotation");
         mContentScale = (float) data.get("content_scale");
         mAdditionalMediaId = (ArrayList<String>) data.get("additional_media_id");
-        mDownloadedPath = "";
+    }
+
+    public void setMarkerId(String id) {
+        mMarkerId = id;
     }
 
     public String getMarkerId() {
@@ -84,10 +83,6 @@ public class MarkerModel {
 
     public ArrayList<String> getMediaId() {
         return mAdditionalMediaId;
-    }
-
-    public String getLocalPath() {
-        return mDownloadedPath;
     }
 
     public Map<String, Object> getData() {

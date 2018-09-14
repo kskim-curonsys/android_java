@@ -62,6 +62,12 @@ public class RequestManager {
     private static final String TAG = RequestManager.class.getSimpleName();
 
     private static final String STORAGE_URL = "gs://my-first-project-7e28c.appspot.com";
+
+    public static final int CATEGORY_USER = 0;
+    public static final int CATEGORY_IMAGE = 1;
+    public static final int CATEGORY_MARKER = 2;
+    public static final int CATEGORY_MODEL = 3;
+
     private static String mBaseUrl = "https://kskim-curonsys.com";
 
     private static RequestManager mInstance;
@@ -164,7 +170,7 @@ public class RequestManager {
 
     public void requestGetContentsList(ArrayList<String> ids, final ContentsListCallback callback) {
         // get all docs, compare each doc's id
-        // - todo: If there are so many items, ..?
+        // - todo: If there are so many items, ..?  (multiple limit? or Query?)
         mFirestore.collection("models")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -269,11 +275,18 @@ public class RequestManager {
         });
     }
 
-    public void requestSetMarkerInfo(MarkerModel data, final SuccessCallback callback) {
-        Map<String, Object> marker = data.getData();
+    public void requestSetMarkerInfo(MarkerModel marker, final SuccessCallback callback) {
+        DocumentReference docRef;
+        if (marker.getMarkerId().isEmpty()) {
+            docRef = mFirestore.collection("markers").document();
+            String docid = docRef.getId();
+            marker.setMarkerId(docid);
 
-        mFirestore.collection("markers").document(data.getMarkerId())
-                .set(marker)
+        } else {
+            docRef = mFirestore.collection("markers").document(marker.getMarkerId());
+        }
+
+        docRef.set(marker.getData())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -398,7 +411,7 @@ public class RequestManager {
         }
     }
 
-    public void requestUploadFileToStorage(TransferModel model, final SuccessCallback callback) {
+    public void requestUploadFileToStorage(TransferModel model, int category, final TransferCallback callback) {
         Uri uri = Uri.fromFile(new File(model.getPath()));
         StorageReference ref = mStorage.getReference();
         StorageReference upRef = ref.child("images/" + model.getName());
@@ -407,32 +420,75 @@ public class RequestManager {
         mUploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                callback.onResponse(false);
+                callback.onResponse(null);
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                //StorageMetadata meta = taskSnapshot.getMetadata();
-                callback.onResponse(true);
+                StorageMetadata meta = taskSnapshot.getMetadata();
+
+                Map<String, Object> values = new HashMap<>();
+                values.put("path", meta.getPath());
+                String url = meta.getPath();
+                String suffix = url.substring(url.indexOf('.'), url.length());
+                values.put("suffix", suffix);
+                values.put("content_type", meta.getContentType());
+                values.put("name", meta.getName());
+                values.put("md5hash", meta.getMd5Hash());
+                values.put("size", meta.getSizeBytes());
+                values.put("creation_time", meta.getCreationTimeMillis());
+                values.put("updated_time", meta.getUpdatedTimeMillis());
+                TransferModel result = new TransferModel(values);
+
+                callback.onResponse(result);
             }
         });
     }
 
-    public void requestUploadFileToStorage(TransferModel model, Uri uri, final SuccessCallback callback) {
+    public void requestUploadFileToStorage(TransferModel model, Uri uri, int category, final TransferCallback callback) {
         StorageReference ref = mStorage.getReference();
-        StorageReference upRef = ref.child("images/" + model.getName());
+        StorageReference upRef;
+        if (category == CATEGORY_USER) {
+            upRef = ref.child("users/" + model.getUserId() + "/" + model.getName());
+
+        } else if (category == CATEGORY_IMAGE) {
+            upRef = ref.child("images/" + model.getName());
+
+        } else if (category == CATEGORY_MARKER) {
+            upRef = ref.child("markers/" + model.getName());
+
+        } else if (category == CATEGORY_MODEL) {
+            upRef = ref.child("models/" + model.getName());
+
+        } else {
+            return;
+        }
 
         mUploadTask = upRef.putFile(uri);
         mUploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                callback.onResponse(false);
+                callback.onResponse(null);
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                //StorageMetadata meta = taskSnapshot.getMetadata();
-                callback.onResponse(true);
+                StorageMetadata meta = taskSnapshot.getMetadata();
+
+                Map<String, Object> values = new HashMap<>();
+                values.put("path", meta.getPath());
+                String url = meta.getPath();
+                String suffix = url.substring(url.indexOf('.'), url.length());
+                values.put("suffix", suffix);
+                values.put("content_type", meta.getContentType());
+                values.put("name", meta.getName());
+                values.put("md5hash", meta.getMd5Hash());
+                values.put("size", meta.getSizeBytes());
+                values.put("creation_time", meta.getCreationTimeMillis());
+                values.put("updated_time", meta.getUpdatedTimeMillis());
+                TransferModel result = new TransferModel(values);
+
+                callback.onResponse(result);
             }
         });
     }

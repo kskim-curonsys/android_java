@@ -24,7 +24,7 @@ public class DBManager {
     public double markerLatitude;
 
     //frag3
-    public int contentId;
+    public String contentId;
     public String contentName;
     public String contentFileName;
     public int textureCount;
@@ -34,7 +34,7 @@ public class DBManager {
 
     //frag4
     public float contentScale;
-    public float contentRoation;
+    public ArrayList<Float> contentRotation;
 
     public  DBManager(){
     }

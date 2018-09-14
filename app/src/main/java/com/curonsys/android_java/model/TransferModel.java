@@ -1,5 +1,6 @@
 package com.curonsys.android_java.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class TransferModel {
@@ -9,6 +10,7 @@ public class TransferModel {
     private String mName;
     private String mMD5Hash;
     private String mErrorMessage;
+    private String mUserId;
 
     private long mSize;
     private long mCreationTimeMillis;
@@ -21,29 +23,79 @@ public class TransferModel {
         mName = "";
         mMD5Hash = "";
         mErrorMessage = "";
+        mUserId = "";
         mSize = 0;
         mCreationTimeMillis = 0;
         mUpdatedTimeMillis = 0;
     }
 
     public TransferModel(Map<String, Object> data) {
-        mPath = (String) data.get("path");
-        mSuffix = (String) data.get("suffix");
-        mContentType = (String) data.get("content_type");
-        mName = (String) data.get("name");
-        mMD5Hash = (String) data.get("md5hash");
-        mErrorMessage = (String) data.get("error");
-        mSize = (long) data.get("size");
-        if (data.containsValue("creation_time")) {
+        if (data.containsKey("path")) {
+            mPath = (String) data.get("path");
+        } else {
+            mPath = "";
+        }
+        if (data.containsKey("suffix")) {
+            mSuffix = (String) data.get("suffix");
+        } else {
+            mSuffix = "";
+        }
+        if (data.containsKey("content_type")) {
+            mContentType = (String) data.get("content_type");
+        } else {
+            mContentType = "";
+        }
+        if (data.containsKey("name")) {
+            mName = (String) data.get("name");
+        } else {
+            mName = "";
+        }
+        if (data.containsKey("md5hash")) {
+            mMD5Hash = (String) data.get("md5hash");
+        } else {
+            mMD5Hash = "";
+        }
+        if (data.containsKey("error")) {
+            mErrorMessage = (String) data.get("error");
+        } else {
+            mErrorMessage = "";
+        }
+        if (data.containsKey("user_id")) {
+            mUserId = (String) data.get("user_id");
+        } else {
+            mUserId = "";
+        }
+        if (data.containsKey("size")) {
+            mSize = (long) data.get("size");
+        } else {
+            mSize = 0;
+        }
+        if (data.containsKey("creation_time")) {
             mCreationTimeMillis = (long) data.get("creation_time");
         } else {
             mCreationTimeMillis = 0;
         }
-        if (data.containsValue("updated_time")) {
+        if (data.containsKey("updated_time")) {
             mUpdatedTimeMillis = (long) data.get("updated_time");
         } else {
             mUpdatedTimeMillis = 0;
         }
+    }
+
+    public Map<String, Object> getData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("path", mPath);
+        data.put("suffix", mSuffix);
+        data.put("content_type", mContentType);
+        data.put("name", mName);
+        data.put("md5hash", mMD5Hash);
+        data.put("error", mErrorMessage);
+        data.put("user_id", mUserId);
+        data.put("size", mSize);
+        data.put("creation_time", mCreationTimeMillis);
+        data.put("updated_time", mUpdatedTimeMillis);
+
+        return data;
     }
 
     public String getPath() {
@@ -68,6 +120,10 @@ public class TransferModel {
 
     public String getErrorMessage() {
         return mErrorMessage;
+    }
+
+    public String getUserId() {
+        return mUserId;
     }
 
     public long getSize() {

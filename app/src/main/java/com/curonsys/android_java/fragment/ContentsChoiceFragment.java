@@ -53,7 +53,7 @@ public class ContentsChoiceFragment extends Fragment {
     private static RecyclerView recyclerView;
     private static ArrayList<ContentsListModel> data;
     public static View.OnClickListener myOnClickListener;
-    private static ArrayList<Integer> removedItems;
+    private static ArrayList<String> removedItems;
     DBManager dbManager = DBManager.getInstance();
     SampleData sampleData = SampleData.getInstance();
     private JSONArray contents;
@@ -83,7 +83,7 @@ public class ContentsChoiceFragment extends Fragment {
         // data = RequestManager.getContentsList();
 
 
-        removedItems = new ArrayList<Integer>();
+        removedItems = new ArrayList<String>();
 
         adapter = new CustomAdapter(data);
         recyclerView.setAdapter(adapter);
@@ -212,7 +212,7 @@ public class ContentsChoiceFragment extends Fragment {
             TextView textViewName
                     = (TextView) viewHolder.itemView.findViewById(R.id.textViewName);
             String selectedName = (String) textViewName.getText();
-            int selectedItemId = -1;
+            String selectedItemId = "";
             for (int i = 0; i < SampleData.nameArray.length; i++) {
                 if (selectedName.equals(SampleData.nameArray[i])) {
                     selectedItemId = SampleData.id_[i];
