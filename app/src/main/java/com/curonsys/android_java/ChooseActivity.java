@@ -185,13 +185,11 @@ public class ChooseActivity extends AppCompatActivity
             if (resultData == null) {
                 return;
             }
-            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
-            if (mAddressOutput == null) {
-                mAddressOutput = "";
-            }
             if (resultCode == Constants.SUCCESS_RESULT) {
                 Map<String, Object> address = new HashMap<>();
-                // set address pieces
+                String country_code = resultData.getString(Constants.RESULT_COUNTRY_KEY);
+                String locality = resultData.getString(Constants.RESULT_LOCALITY_KEY);
+                String thoroughfare = resultData.getString(Constants.RESULT_THOROUGHFARE_KEY);
 
 
                 // upload marker image
