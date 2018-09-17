@@ -12,6 +12,9 @@ public class MarkerModel {
     private String mFile;
     private float mRating;
     private GeoPoint mGeoPoint;
+    private String mCountryCode;
+    private String mLocality;
+    private String mThoroughfare;
     private String mContentId;
     private ArrayList<Float> mContentRotation;
     private float mContentScale;
@@ -23,22 +26,93 @@ public class MarkerModel {
         mFile = "";
         mRating = 0;
         mGeoPoint = new GeoPoint(0, 0);
+        mCountryCode = "";
+        mLocality = "";
+        mThoroughfare = "";
         mContentId = "";
         mContentRotation = new ArrayList<Float>();
+        mContentRotation.add(new Float(0));
+        mContentRotation.add(new Float(0));
+        mContentRotation.add(new Float(0));
         mContentScale = 0;
         mAdditionalMediaId = new ArrayList<String>();
     }
 
     public MarkerModel(Map<String, Object> data) {
-        mMarkerId = (String) data.get("marker_id");
-        mUserId = (String) data.get("user_id");
-        mFile = (String) data.get("file");
-        mRating = (float) data.get("rating");
-        mGeoPoint = (GeoPoint) data.get("location");
-        mContentId = (String) data.get("content_id");
-        mContentRotation = (ArrayList<Float>) data.get("content_rotation");
-        mContentScale = (float) data.get("content_scale");
-        mAdditionalMediaId = (ArrayList<String>) data.get("additional_media_id");
+        if (data.containsKey("marker_id")) {
+            mMarkerId = (String) data.get("marker_id");
+        } else {
+            mMarkerId = "";
+        }
+
+        if (data.containsKey("user_id")) {
+            mUserId = (String) data.get("user_id");
+        } else {
+            mUserId = "";
+        }
+
+        if (data.containsKey("file")) {
+            mFile = (String) data.get("file");
+        } else {
+            mFile = "";
+        }
+
+        if (data.containsKey("rating")) {
+            mRating = (float) data.get("rating");
+        } else {
+            mRating = 0;
+        }
+
+        if (data.containsKey("location")) {
+            mGeoPoint = (GeoPoint) data.get("location");
+        } else {
+            mGeoPoint = new GeoPoint(0, 0);
+        }
+
+        if (data.containsKey("country_code")) {
+            mCountryCode = (String) data.get("country_code");
+        } else {
+            mCountryCode = "";
+        }
+
+        if (data.containsKey("locality")) {
+            mLocality = (String) data.get("locality");
+        } else {
+            mLocality = "";
+        }
+
+        if (data.containsKey("thoroughfare")) {
+            mThoroughfare = (String) data.get("thoroughfare");
+        } else {
+            mThoroughfare = "";
+        }
+
+        if (data.containsKey("content_id")) {
+            mContentId = (String) data.get("content_id");
+        } else {
+            mContentId = "";
+        }
+
+        if (data.containsKey("content_rotation")) {
+            mContentRotation = (ArrayList<Float>) data.get("content_rotation");
+        } else {
+            mContentRotation = new ArrayList<Float>();
+            mContentRotation.add(new Float(0));
+            mContentRotation.add(new Float(0));
+            mContentRotation.add(new Float(0));
+        }
+
+        if (data.containsKey("content_scale")) {
+            mContentScale = (float) data.get("content_scale");
+        } else {
+            mContentScale = 0;
+        }
+
+        if (data.containsKey("additional_media_id")) {
+            mAdditionalMediaId = (ArrayList<String>) data.get("additional_media_id");
+        } else {
+            mAdditionalMediaId = new ArrayList<String>();
+        }
     }
 
     public void setMarkerId(String id) {
@@ -93,6 +167,9 @@ public class MarkerModel {
         data.put("file", mFile);
         data.put("rating", mRating);
         data.put("location", mGeoPoint);
+        data.put("country_code", mCountryCode);
+        data.put("locality", mLocality);
+        data.put("thoroughfare", mThoroughfare);
         data.put("content_id", mContentId);
         data.put("content_rotation", mContentRotation);
         data.put("content_scale", mContentScale);

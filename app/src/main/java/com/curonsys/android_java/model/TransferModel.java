@@ -35,46 +35,55 @@ public class TransferModel {
         } else {
             mPath = "";
         }
+
         if (data.containsKey("suffix")) {
             mSuffix = (String) data.get("suffix");
         } else {
             mSuffix = "";
         }
+
         if (data.containsKey("content_type")) {
             mContentType = (String) data.get("content_type");
         } else {
             mContentType = "";
         }
+
         if (data.containsKey("name")) {
             mName = (String) data.get("name");
         } else {
             mName = "";
         }
+
         if (data.containsKey("md5hash")) {
             mMD5Hash = (String) data.get("md5hash");
         } else {
             mMD5Hash = "";
         }
+
         if (data.containsKey("error")) {
             mErrorMessage = (String) data.get("error");
         } else {
             mErrorMessage = "";
         }
+
         if (data.containsKey("user_id")) {
             mUserId = (String) data.get("user_id");
         } else {
             mUserId = "";
         }
+
         if (data.containsKey("size")) {
             mSize = (long) data.get("size");
         } else {
             mSize = 0;
         }
+
         if (data.containsKey("creation_time")) {
             mCreationTimeMillis = (long) data.get("creation_time");
         } else {
             mCreationTimeMillis = 0;
         }
+
         if (data.containsKey("updated_time")) {
             mUpdatedTimeMillis = (long) data.get("updated_time");
         } else {

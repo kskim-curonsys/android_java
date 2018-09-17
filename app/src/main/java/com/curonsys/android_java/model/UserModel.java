@@ -12,7 +12,6 @@ public class UserModel {
     private ArrayList<String> mContents;
     private ArrayList<String> mPurchases;
     private ArrayList<String> mLocations;
-    private String mDownloadedPath;
 
     public UserModel() {
         mUserId = "";
@@ -22,7 +21,6 @@ public class UserModel {
         mContents = new ArrayList<String>();
         mPurchases = new ArrayList<String>();
         mLocations = new ArrayList<String>();
-        mDownloadedPath = "";
     }
 
     public UserModel(Map<String, Object> data) {
@@ -33,7 +31,6 @@ public class UserModel {
         mContents = (ArrayList<String>) data.get("contents");
         mPurchases = (ArrayList<String>) data.get("purchase");
         mLocations = (ArrayList<String>) data.get("location");
-        mDownloadedPath = "";
     }
 
     public String getUserId() {
@@ -62,10 +59,6 @@ public class UserModel {
 
     public ArrayList<String> getLocations() {
         return mLocations;
-    }
-
-    public String getDownloadedPath() {
-        return mDownloadedPath;
     }
 
     public Map<String, Object> getData() {

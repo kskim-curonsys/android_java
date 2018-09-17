@@ -186,14 +186,12 @@ public class ChooseActivity extends AppCompatActivity
                 return;
             }
             if (resultCode == Constants.SUCCESS_RESULT) {
-                Map<String, Object> address = new HashMap<>();
-                String country_code = resultData.getString(Constants.RESULT_COUNTRY_KEY);
-                String locality = resultData.getString(Constants.RESULT_LOCALITY_KEY);
-                String thoroughfare = resultData.getString(Constants.RESULT_THOROUGHFARE_KEY);
+                mDBManager.markerCountryCode = resultData.getString(Constants.RESULT_COUNTRY_KEY);
+                mDBManager.markerLocality = resultData.getString(Constants.RESULT_LOCALITY_KEY);
+                mDBManager.markerThoroughfare = resultData.getString(Constants.RESULT_THOROUGHFARE_KEY);
 
-
-                // upload marker image
-                uploadMarkerImage(address);
+                // upload marker image to storage
+                uploadMarkerImage();
             }
         }
     }
@@ -427,7 +425,7 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
-    void uploadMarkerImage(Map<String, Object> address) {
+    private void uploadMarkerImage() {
         try {
             Cursor returnCursor = getContentResolver().query(mDBManager.imageURI,
                     null, null, null, null);
@@ -447,14 +445,15 @@ public class ChooseActivity extends AppCompatActivity
             values.put("suffix", suffix);
             values.put("size", size);
             values.put("user_id", userid);
-
-            // check geo_area by lat,lon
-            // or country, city, address
-
             TransferModel model = new TransferModel(values);
 
+            Map<String, Object> address = new HashMap<>();
+            address.put("country_code", mDBManager.markerCountryCode);
+            address.put("locality", mDBManager.markerLocality);
+            address.put("thoroughfare", mDBManager.markerThoroughfare);
+
             // upload marker
-            mRequestManager.requestUploadFileToStorage(model, mDBManager.imageURI, RequestManager.CATEGORY_MARKER, new RequestManager.TransferCallback() {
+            mRequestManager.requestUploadMarkerToStorage(model, mDBManager.imageURI, address, new RequestManager.TransferCallback() {
                 @Override
                 public void onResponse(TransferModel result) {
                     Map<String, Object> data = new HashMap<>();
@@ -464,30 +463,36 @@ public class ChooseActivity extends AppCompatActivity
                     String userid = currentUser.getUid();
                     data.put("user_id", userid);
                     data.put("file", result.getPath());
-                    data.put("rating", (float)mDBManager.markerRating);
+                    data.put("rating", (float) mDBManager.markerRating);
                     GeoPoint location = new GeoPoint(mDBManager.markerLatitude, mDBManager.markerLongtitude);
                     data.put("location", location);
                     data.put("content_id", mDBManager.contentId);
                     data.put("content_rotation", mDBManager.contentRotation);
                     data.put("content_scale", mDBManager.contentScale);
-                    data.put("additional_media_id", "");
+                    data.put("country_code", mDBManager.markerCountryCode);
+                    data.put("locality", mDBManager.markerLocality);
+                    data.put("thoroughfare", mDBManager.markerThoroughfare);
 
-                    // marker registration test
-                    MarkerModel marker = new MarkerModel(data);
-                    mRequestManager.requestSetMarkerInfo(marker, new RequestManager.SuccessCallback() {
-                        @Override
-                        public void onResponse(boolean success) {
-                            Toast.makeText(ChooseActivity.this,
-                                    "marker registration success.",
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    // update marker database
+                    updateMarkerDB(data);
                 }
             });
 
         } catch (Exception e) {
             Log.e("TAKE_ALBUM getData failed. ", e.toString());
         }
+    }
+
+    private void updateMarkerDB(Map<String, Object> data) {
+        MarkerModel marker = new MarkerModel(data);
+        mRequestManager.requestSetMarkerInfo(marker, new RequestManager.SuccessCallback() {
+            @Override
+            public void onResponse(boolean success) {
+                Toast.makeText(ChooseActivity.this,
+                        "marker registration success.",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -669,7 +674,7 @@ public class ChooseActivity extends AppCompatActivity
 
     protected void startMarkerAddressIntentService() {
         Intent intent = new Intent(this, FetchAddressIntentService.class);
-        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.RECEIVER, mAddressReceiver);
         intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
         startService(intent);
     }

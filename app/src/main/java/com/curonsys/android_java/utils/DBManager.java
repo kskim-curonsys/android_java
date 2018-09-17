@@ -22,6 +22,9 @@ public class DBManager {
     //frag2
     public double markerLongtitude;
     public double markerLatitude;
+    public String markerCountryCode;
+    public String markerLocality;
+    public String markerThoroughfare;
 
     //frag3
     public String contentId;
@@ -35,6 +38,7 @@ public class DBManager {
     //frag4
     public float contentScale;
     public ArrayList<Float> contentRotation;
+
 
     public  DBManager(){
     }

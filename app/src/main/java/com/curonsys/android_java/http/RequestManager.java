@@ -492,4 +492,38 @@ public class RequestManager {
             }
         });
     }
+
+    public void requestUploadMarkerToStorage(TransferModel model, Uri uri, Map<String, Object> address, final TransferCallback callback) {
+        StorageReference ref = mStorage.getReference();
+        StorageReference upRef = ref.child("markers/" + address.get("country_code") + "/" + address.get("locality") + "/" + model.getName());
+
+        mUploadTask = upRef.putFile(uri);
+        mUploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                callback.onResponse(null);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                StorageMetadata meta = taskSnapshot.getMetadata();
+
+                Map<String, Object> values = new HashMap<>();
+                values.put("path", meta.getPath());
+                String url = meta.getPath();
+                String suffix = url.substring(url.indexOf('.'), url.length());
+                values.put("suffix", suffix);
+                values.put("content_type", meta.getContentType());
+                values.put("name", meta.getName());
+                values.put("md5hash", meta.getMd5Hash());
+                values.put("size", meta.getSizeBytes());
+                values.put("creation_time", meta.getCreationTimeMillis());
+                values.put("updated_time", meta.getUpdatedTimeMillis());
+                TransferModel result = new TransferModel(values);
+
+                callback.onResponse(result);
+            }
+        });
+    }
+
 }
