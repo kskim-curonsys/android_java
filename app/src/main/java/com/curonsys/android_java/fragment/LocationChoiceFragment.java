@@ -125,8 +125,8 @@ public class LocationChoiceFragment extends Fragment implements OnMapReadyCallba
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
             lm.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
-            dbManager.markerLongtitude = longitude;
-            dbManager.markerLatitude = latitude;
+            dbManager.currentLongtitude = longitude;
+            dbManager.currentLatitude = latitude;
         }
 
         public void onProviderDisabled(String provider) {

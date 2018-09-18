@@ -31,6 +31,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.model.UserModel;
+import com.curonsys.android_java.utils.DBManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -38,9 +41,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.curonsys.android_java.R;
+import com.google.firebase.firestore.GeoPoint;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -59,6 +65,8 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
     private TextView mTextView;
 
     private FirebaseAuth mAuth;
+    private RequestManager mRequestManager;
+    private DBManager mDBManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +104,8 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
         mProgressView = findViewById(R.id.signup_progress);
 
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        mRequestManager = RequestManager.getInstance();
+        mDBManager = DBManager.getInstance();
     }
 
     private void populateAutoComplete() {
@@ -226,8 +235,38 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
 
     private void nextStep() {
         // set user info. to database
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String userid = currentUser.getUid();
+        String email = currentUser.getEmail();
+        String name = email.substring(0, email.indexOf('@'));
 
-        // finish activity
+        Map<String, Object> values = new HashMap<>();
+        values.put("user_id", userid);
+        values.put("email", email);
+        values.put("name", name);
+        values.put("notification", true);
+        ArrayList<GeoPoint> locations = new ArrayList<GeoPoint>();
+        GeoPoint currentLocation = new GeoPoint(mDBManager.currentLatitude, mDBManager.currentLongtitude);
+        locations.add(currentLocation);
+        values.put("locations", locations);
+
+        UserModel model = new UserModel(values);
+
+        mRequestManager.requestSetUserInfo(model, new RequestManager.SuccessCallback() {
+            @Override
+            public void onResponse(boolean success) {
+                if (success) {
+                    // finish activity
+                    goFinish();
+                } else {
+                    // delete auth user ?
+
+                }
+            }
+        });
+    }
+
+    private void goFinish() {
         finish();
     }
 

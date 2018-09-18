@@ -20,11 +20,11 @@ public class DBManager {
     public String generatorId = null;
 
     //frag2
-    public double markerLongtitude = 0;
-    public double markerLatitude = 0;
-    public String markerCountryCode = "";
-    public String markerLocality = "";
-    public String markerThoroughfare = "";
+    public double currentLongtitude = 0;
+    public double currentLatitude = 0;
+    public String currentCountryCode = "";
+    public String currentLocality = "";
+    public String currentThoroughfare = "";
 
     //frag3
     public String contentId = "";

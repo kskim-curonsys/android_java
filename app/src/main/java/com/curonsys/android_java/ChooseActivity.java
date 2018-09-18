@@ -138,7 +138,7 @@ public class ChooseActivity extends AppCompatActivity
     private LocationManager mLocationManager;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private RequestManager mRequestManager;
-    private DBManager mDBManager = DBManager.getInstance();
+    private DBManager mDBManager;
     private GeofencingClient mGeofencingClient;
     private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
     private PendingIntent mGeofencePendingIntent;
@@ -188,9 +188,9 @@ public class ChooseActivity extends AppCompatActivity
                 return;
             }
             if (resultCode == Constants.SUCCESS_RESULT) {
-                mDBManager.markerCountryCode = resultData.getString(Constants.RESULT_COUNTRY_KEY);
-                mDBManager.markerLocality = resultData.getString(Constants.RESULT_LOCALITY_KEY);
-                mDBManager.markerThoroughfare = resultData.getString(Constants.RESULT_THOROUGHFARE_KEY);
+                mDBManager.currentCountryCode = resultData.getString(Constants.RESULT_COUNTRY_KEY);
+                mDBManager.currentLocality = resultData.getString(Constants.RESULT_LOCALITY_KEY);
+                mDBManager.currentThoroughfare = resultData.getString(Constants.RESULT_THOROUGHFARE_KEY);
 
                 // upload marker image to storage
                 uploadMarkerImage();
@@ -243,6 +243,7 @@ public class ChooseActivity extends AppCompatActivity
         mAnalytics = FirebaseAnalytics.getInstance(this);
 
         mRequestManager = RequestManager.getInstance();
+        mDBManager = DBManager.getInstance();
 
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -427,76 +428,6 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
-    private void uploadMarkerImage() {
-        try {
-            Cursor returnCursor = getContentResolver().query(mDBManager.imageURI,
-                    null, null, null, null);
-            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-            returnCursor.moveToFirst();
-            String name = returnCursor.getString(nameIndex);
-            long size = returnCursor.getLong(sizeIndex);
-            String path = mDBManager.imageURI.getPath();
-            String suffix = name.substring(name.indexOf('.'), name.length());
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            String userid = currentUser.getUid();
-
-            Map<String, Object> values = new HashMap<>();
-            values.put("path", path);
-            values.put("name", name);
-            values.put("suffix", suffix);
-            values.put("size", size);
-            values.put("user_id", userid);
-            TransferModel model = new TransferModel(values);
-
-            Map<String, Object> address = new HashMap<>();
-            address.put("country_code", mDBManager.markerCountryCode);
-            address.put("locality", mDBManager.markerLocality);
-            address.put("thoroughfare", mDBManager.markerThoroughfare);
-
-            // upload marker
-            mRequestManager.requestUploadMarkerToStorage(model, mDBManager.imageURI, address, new RequestManager.TransferCallback() {
-                @Override
-                public void onResponse(TransferModel result) {
-                    Map<String, Object> data = new HashMap<>();
-
-                    data.put("marker_id", ""); // new marker
-                    FirebaseUser currentUser = mAuth.getCurrentUser();
-                    String userid = currentUser.getUid();
-                    data.put("user_id", userid);
-                    data.put("file", result.getPath());
-                    data.put("rating", (float) mDBManager.markerRating);
-                    GeoPoint location = new GeoPoint(mDBManager.markerLatitude, mDBManager.markerLongtitude);
-                    data.put("location", location);
-                    data.put("content_id", mDBManager.contentId);
-                    data.put("content_rotation", mDBManager.contentRotation);
-                    data.put("content_scale", mDBManager.contentScale);
-                    data.put("country_code", mDBManager.markerCountryCode);
-                    data.put("locality", mDBManager.markerLocality);
-                    data.put("thoroughfare", mDBManager.markerThoroughfare);
-
-                    // update marker database
-                    updateMarkerDB(data);
-                }
-            });
-
-        } catch (Exception e) {
-            Log.e("TAKE_ALBUM getData failed. ", e.toString());
-        }
-    }
-
-    private void updateMarkerDB(Map<String, Object> data) {
-        MarkerModel marker = new MarkerModel(data);
-        mRequestManager.requestSetMarkerInfo(marker, new RequestManager.SuccessCallback() {
-            @Override
-            public void onResponse(boolean success) {
-                Toast.makeText(ChooseActivity.this,
-                        "marker registration success.",
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO) {
@@ -530,7 +461,6 @@ public class ChooseActivity extends AppCompatActivity
         } else if (requestCode == REQUEST_PLACE_PICKER) {
             if (resultCode == Activity.RESULT_OK) {
                 final Place place = PlacePicker.getPlace(data, this);
-
                 final CharSequence name = place.getName();
                 final CharSequence address = place.getAddress();
                 String attributions = PlacePicker.getAttributions(data);
@@ -632,8 +562,8 @@ public class ChooseActivity extends AppCompatActivity
             //mGoogleMap.addMarker(markerOptions);
             //mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
             //mLocationManager.removeUpdates(mLocationListener);  //  미수신할때는 반드시 자원해체를 해주어야 한다.
-            mDBManager.markerLatitude = latitude;
-            mDBManager.markerLongtitude = longitude;
+            mDBManager.currentLatitude = latitude;
+            mDBManager.currentLongtitude = longitude;
 
             double testlat = 34.951302;      // test value to calculate distance between two points
             double testlon = 127.689964;
@@ -915,9 +845,6 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goOption() {
-        // marker test
-
-
         Intent intent = new Intent(this, BottomActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
@@ -958,7 +885,6 @@ public class ChooseActivity extends AppCompatActivity
                 }
             });
 
-            // test: uploaded info.
         } else {
             Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
@@ -974,21 +900,6 @@ public class ChooseActivity extends AppCompatActivity
         } else {
             Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
-
-        /*
-        // content
-        String content_id = "ZUZKrsGuGA9DdOwVBiWA";
-        mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
-            @Override
-            public void onResponse(ContentModel response) {
-                Log.d(TAG, "onResponse: ContentModel (" +
-                        response.getContentId() + ", " + response.getContentName() + ", " + response.getVersion() + ")");
-
-                mOutput += "onResponse: ContentModel (" + response.getContentId() + ", " + response.getContentName() + ", " + response.getVersion() + ")";
-                mTestResult.setText(mOutput);
-            }
-        });
-        */
     }
 
     private void goTestGetList() {
@@ -1010,6 +921,7 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void getUserContents(String userid) {
+        // test download all files
         mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
             @Override
             public void onResponse(UserModel response) {
@@ -1057,4 +969,75 @@ public class ChooseActivity extends AppCompatActivity
         //ListView list;
 
     }
+
+    private void uploadMarkerImage() {
+        try {
+            Cursor returnCursor = getContentResolver().query(mDBManager.imageURI,
+                    null, null, null, null);
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            returnCursor.moveToFirst();
+            String name = returnCursor.getString(nameIndex);
+            long size = returnCursor.getLong(sizeIndex);
+            String path = mDBManager.imageURI.getPath();
+            String suffix = name.substring(name.indexOf('.'), name.length());
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            String userid = currentUser.getUid();
+
+            Map<String, Object> values = new HashMap<>();
+            values.put("path", path);
+            values.put("name", name);
+            values.put("suffix", suffix);
+            values.put("size", size);
+            values.put("user_id", userid);
+            TransferModel model = new TransferModel(values);
+
+            Map<String, Object> address = new HashMap<>();
+            address.put("country_code", mDBManager.currentCountryCode);
+            address.put("locality", mDBManager.currentLocality);
+            address.put("thoroughfare", mDBManager.currentThoroughfare);
+
+            // upload marker
+            mRequestManager.requestUploadMarkerToStorage(model, mDBManager.imageURI, address, new RequestManager.TransferCallback() {
+                @Override
+                public void onResponse(TransferModel result) {
+                    Map<String, Object> data = new HashMap<>();
+
+                    data.put("marker_id", ""); // new marker
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    String userid = currentUser.getUid();
+                    data.put("user_id", userid);
+                    data.put("file", result.getPath());
+                    data.put("rating", (float) mDBManager.markerRating);
+                    GeoPoint location = new GeoPoint(mDBManager.currentLatitude, mDBManager.currentLongtitude);
+                    data.put("location", location);
+                    data.put("content_id", mDBManager.contentId);
+                    data.put("content_rotation", mDBManager.contentRotation);
+                    data.put("content_scale", mDBManager.contentScale);
+                    data.put("country_code", mDBManager.currentCountryCode);
+                    data.put("locality", mDBManager.currentLocality);
+                    data.put("thoroughfare", mDBManager.currentThoroughfare);
+
+                    // update marker database
+                    updateMarkerDB(data);
+                }
+            });
+
+        } catch (Exception e) {
+            Log.e("TAKE_ALBUM getData failed. ", e.toString());
+        }
+    }
+
+    private void updateMarkerDB(Map<String, Object> data) {
+        MarkerModel marker = new MarkerModel(data);
+        mRequestManager.requestSetMarkerInfo(marker, new RequestManager.SuccessCallback() {
+            @Override
+            public void onResponse(boolean success) {
+                Toast.makeText(ChooseActivity.this,
+                        "marker registration success.",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
 }

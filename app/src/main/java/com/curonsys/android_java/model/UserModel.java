@@ -1,5 +1,7 @@
 package com.curonsys.android_java.model;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +14,7 @@ public class UserModel {
     private String mImageUrl;
     private ArrayList<String> mContents;
     private ArrayList<String> mPurchases;
-    private ArrayList<String> mLocations;
+    private ArrayList<GeoPoint> mLocations;
 
     public UserModel() {
         mUserId = "";
@@ -22,7 +24,7 @@ public class UserModel {
         mImageUrl = "";
         mContents = new ArrayList<String>();
         mPurchases = new ArrayList<String>();
-        mLocations = new ArrayList<String>();
+        mLocations = new ArrayList<GeoPoint>();
     }
 
     public UserModel(Map<String, Object> data) {
@@ -68,10 +70,10 @@ public class UserModel {
             mPurchases = new ArrayList<String>();
         }
 
-        if (data.containsKey("location")) {
-            mLocations = (ArrayList<String>) data.get("location");
+        if (data.containsKey("locations")) {
+            mLocations = (ArrayList<GeoPoint>) data.get("locations");
         } else {
-            mLocations = new ArrayList<String>();
+            mLocations = new ArrayList<GeoPoint>();
         }
     }
 
@@ -107,7 +109,7 @@ public class UserModel {
         return mPurchases;
     }
 
-    public ArrayList<String> getLocations() {
+    public ArrayList<GeoPoint> getLocations() {
         return mLocations;
     }
 
@@ -116,12 +118,12 @@ public class UserModel {
 
         data.put("user_id", mUserId);
         data.put("name", mName);
-        data.put("name", mEmail);
+        data.put("email", mEmail);
         data.put("notification", mNotification);
         data.put("image_url", mImageUrl);
         data.put("contents", mContents);
         data.put("purchase", mPurchases);
-        data.put("location", mLocations);
+        data.put("locations", mLocations);
 
         return data;
     }
