@@ -54,14 +54,14 @@ import java.util.Map;
 
 import cz.msebera.android.httpclient.Header;
 
+import static com.curonsys.android_java.utils.Constants.STORAGE_BASE_URL;
+
 /**
  * Created by ijin-yeong on 2018. 7. 23..
  */
 
 public class RequestManager {
     private static final String TAG = RequestManager.class.getSimpleName();
-
-    private static final String STORAGE_URL = "gs://my-first-project-7e28c.appspot.com";
 
     public static final int CATEGORY_USER = 0;
     public static final int CATEGORY_IMAGE = 1;
@@ -114,7 +114,7 @@ public class RequestManager {
 
     public RequestManager() {
         mFirestore = FirebaseFirestore.getInstance();
-        mStorage = FirebaseStorage.getInstance(STORAGE_URL);
+        mStorage = FirebaseStorage.getInstance(STORAGE_BASE_URL);
     }
 
     public RequestManager(String baseurl) {
@@ -135,10 +135,17 @@ public class RequestManager {
     }
 
     public void requestSetUserInfo(UserModel data, final SuccessCallback callback) {
-        Map<String, Object> user = data.getData();
+        DocumentReference docRef;
+        if (data.getUserId().isEmpty()) {
+            docRef = mFirestore.collection("users").document();
+            String docid = docRef.getId();
+            data.setUserId(docid);
 
-        mFirestore.collection("users").document(data.getUserId())
-                .set(user)
+        } else {
+            docRef = mFirestore.collection("users").document(data.getUserId());
+        }
+
+        docRef.set(data.getData())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -219,10 +226,17 @@ public class RequestManager {
     }
 
     public void requestSetContentInfo(ContentModel data, final SuccessCallback callback) {
-        Map<String, Object> content = data.getData();
+        DocumentReference docRef;
+        if (data.getContentId().isEmpty()) {
+            docRef = mFirestore.collection("models").document();
+            String docid = docRef.getId();
+            data.setContentId(docid);
 
-        mFirestore.collection("models").document(data.getContentId())
-                .set(content)
+        } else {
+            docRef = mFirestore.collection("models").document(data.getContentId());
+        }
+
+        docRef.set(data.getData())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

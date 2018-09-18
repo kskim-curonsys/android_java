@@ -31,9 +31,6 @@ public class MarkerModel {
         mThoroughfare = "";
         mContentId = "";
         mContentRotation = new ArrayList<Float>();
-        mContentRotation.add(new Float(0));
-        mContentRotation.add(new Float(0));
-        mContentRotation.add(new Float(0));
         mContentScale = 0;
         mAdditionalMediaId = new ArrayList<String>();
     }
@@ -97,9 +94,6 @@ public class MarkerModel {
             mContentRotation = (ArrayList<Float>) data.get("content_rotation");
         } else {
             mContentRotation = new ArrayList<Float>();
-            mContentRotation.add(new Float(0));
-            mContentRotation.add(new Float(0));
-            mContentRotation.add(new Float(0));
         }
 
         if (data.containsKey("content_scale")) {

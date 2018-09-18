@@ -16,7 +16,6 @@ public class ContentModel implements Serializable {
     private ArrayList<Float> mRotation;
     private Number mScale;
     private String mVersion;
-    private ArrayList<String> mDownloadFiles;
 
     public ContentModel() {
         mContentId = "";
@@ -29,21 +28,72 @@ public class ContentModel implements Serializable {
         mRotation = new ArrayList<Float>();
         mScale = 0;
         mVersion = "0.0.0";
-        mDownloadFiles = new ArrayList<String>();
     }
 
     public ContentModel(Map<String, Object> data) {
-        mContentId = (String) data.get("content_id");
-        mName = (String) data.get("name");
-        mFiles = (ArrayList<String>) data.get("files");
-        mTextures = (ArrayList<String>) data.get("textures");
-        m3D = (boolean) data.get("3d");
-        mAnimation = (boolean) data.get("animation");
-        mFormat = (String) data.get("format");
-        mRotation = (ArrayList<Float>) data.get("rotation");
-        mScale = (Number) data.get("scale");
-        mVersion = (String) data.get("version");
-        mDownloadFiles = new ArrayList<String>();
+        if (data.containsKey("content_id")) {
+            mContentId = (String) data.get("content_id");
+        } else {
+            mContentId = "";
+        }
+
+        if (data.containsKey("name")) {
+            mName = (String) data.get("name");
+        } else {
+            mName = "";
+        }
+
+        if (data.containsKey("files")) {
+            mFiles = (ArrayList<String>) data.get("files");
+        } else {
+            mFiles = new ArrayList<String>();
+        }
+
+        if (data.containsKey("textures")) {
+            mTextures = (ArrayList<String>) data.get("textures");
+        } else {
+            mTextures = new ArrayList<String>();
+        }
+
+        if (data.containsKey("3d")) {
+            m3D = (boolean) data.get("3d");
+        } else {
+            m3D = true;
+        }
+
+        if (data.containsKey("animation")) {
+            mAnimation = (boolean) data.get("animation");
+        } else {
+            mAnimation = false;
+        }
+
+        if (data.containsKey("format")) {
+            mFormat = (String) data.get("format");
+        } else {
+            mFormat = "";
+        }
+
+        if (data.containsKey("rotation")) {
+            mRotation = (ArrayList<Float>) data.get("rotation");
+        } else {
+            mRotation = new ArrayList<Float>();
+        }
+
+        if (data.containsKey("scale")) {
+            mScale = (Number) data.get("scale");
+        } else {
+            mScale = 0;
+        }
+
+        if (data.containsKey("version")) {
+            mVersion = (String) data.get("version");
+        } else {
+            mVersion = "";
+        }
+    }
+
+    public void setContentId(String contentid) {
+        mContentId = contentid;
     }
 
     public String getContentId() {
@@ -84,14 +134,6 @@ public class ContentModel implements Serializable {
 
     public String getVersion() {
         return mVersion;
-    }
-
-    public ArrayList<String> getDownloadFiles() {
-        return mDownloadFiles;
-    }
-
-    public void setDownloadPath(int index, String path) {
-
     }
 
     public Map<String, Object> getData() {

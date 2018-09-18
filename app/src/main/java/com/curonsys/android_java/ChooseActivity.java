@@ -103,6 +103,8 @@ import eu.kudan.kudan.ARAPIKey;
 import com.curonsys.android_java.activity.*;
 import com.curonsys.android_java.utils.PermissionManager;
 
+import static com.curonsys.android_java.utils.Constants.KUDAN_API_KEY_DEV;
+import static com.curonsys.android_java.utils.Constants.STORAGE_BASE_URL;
 import static com.curonsys.android_java.utils.LocationUtil.distanceFrom;
 import static com.curonsys.android_java.utils.LocationUtil.latitudeInDifference;
 import static com.curonsys.android_java.utils.LocationUtil.longitudeInDifference;
@@ -219,7 +221,7 @@ public class ChooseActivity extends AppCompatActivity
         setContentView(R.layout.activity_choose);
 
         ARAPIKey key = ARAPIKey.getInstance();
-        key.setAPIKey("JvTam0rZCqbJkMEJZuB4KevXbV0/CquncYpJU0FKx5PA+3miHVsmmBeUEepbEpH+RzFK4VPDJ4DzYOXixEO3ZGDiZkVR/AH2XegPgwIqMJlsSAtAvVErFXsQaOEYlq8SF4kvkEQgrlgXrJY/t6cDuxdBp5ecgf68eI+1KU8ObwjK8YQbXv+6s/3GSL6lVyVo62o2Sv2QkUfZEpjrl5hI1rzjJ70aNfpy0ddZgJSMNUF5gbsk+dtoFETdvmCDhlC58w2E23r8h+XpEvMZslkMFKlY/5zq7x4YSkYcEbAw4KTDsOj63dbO2lld49TOG2Bo3JHoIRgf5kFa03xj0JrQBsxG/gHhNQwYJGqMAhVSNvZEIQKRsS9UTmXOzsjysU8zpPoRuAbhXQAyUnkc7jdIGO49cSoVjR+QGx8bmpLlpxphNu90b1up75IJvrY/fX/EF7LgTfk5tXMRXhpdX90dAdtFiwSZYlcmY6bc/uxC9IqbwGeEQuw7508fte/7h3wBrvoRqS5948giz6VfR6Hxz7lPcwG4sYVPRKc4QsQm9DK8Ac5+QJWUwRUjClfJ0y59kDPoB/M4t2kOBlaJAHeSgijQor1IgXFGEIlLxRbf5qgWfjdGie2yeb84CrcGvCzt6IwltqrD4WbcI+HAJAJogY82hKhMEgJaulqpSIvlKQY=");
+        key.setAPIKey(KUDAN_API_KEY_DEV);
 
         PermissionManager permissionManager = new PermissionManager(this);
         permissionManager.permissionCheck();
@@ -237,7 +239,7 @@ public class ChooseActivity extends AppCompatActivity
         });
 
         mAuth = FirebaseAuth.getInstance();
-        mStorage = FirebaseStorage.getInstance("gs://my-first-project-7e28c.appspot.com");
+        mStorage = FirebaseStorage.getInstance(STORAGE_BASE_URL);
         mAnalytics = FirebaseAnalytics.getInstance(this);
 
         mRequestManager = RequestManager.getInstance();
@@ -502,7 +504,7 @@ public class ChooseActivity extends AppCompatActivity
             if (resultCode == Activity.RESULT_OK) {
                 if (data.getData() != null) {
                     mDBManager.imageURI = data.getData();
-                    // upload image
+                    // marker registration test
                     startMarkerAddressIntentService();
                 }
             }
@@ -581,7 +583,7 @@ public class ChooseActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            goCamera();
+            goMarkerGeneration();
 
         } else if (id == R.id.nav_gallery) {
             goGallery();
@@ -633,7 +635,7 @@ public class ChooseActivity extends AppCompatActivity
             mDBManager.markerLatitude = latitude;
             mDBManager.markerLongtitude = longitude;
 
-            double testlat = 34.951302;      //
+            double testlat = 34.951302;      // test value to calculate distance between two points
             double testlon = 127.689964;
             double testdist = distanceFrom(latitude, longitude, testlat, testlon);
 
@@ -885,9 +887,11 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goCamera() {
-        //Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        //startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_TAKE_PHOTO);
+    }
 
+    private void goMarkerGeneration() {
         if (checkLogin()) {
             Intent intent = new Intent(getApplicationContext(), MarkerGenerationActivity.class);
             startActivity(intent);

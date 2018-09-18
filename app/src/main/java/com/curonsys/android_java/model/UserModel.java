@@ -7,6 +7,7 @@ import java.util.Map;
 public class UserModel {
     private String mUserId;
     private String mName;
+    private String mEmail;
     private boolean mNotification;
     private String mImageUrl;
     private ArrayList<String> mContents;
@@ -16,6 +17,7 @@ public class UserModel {
     public UserModel() {
         mUserId = "";
         mName = "";
+        mEmail = "";
         mNotification = true;
         mImageUrl = "";
         mContents = new ArrayList<String>();
@@ -24,13 +26,57 @@ public class UserModel {
     }
 
     public UserModel(Map<String, Object> data) {
-        mUserId = (String) data.get("user_id");
-        mName = (String) data.get("name");
-        mNotification = (boolean) data.get("notification");
-        mImageUrl = (String) data.get("image_url");
-        mContents = (ArrayList<String>) data.get("contents");
-        mPurchases = (ArrayList<String>) data.get("purchase");
-        mLocations = (ArrayList<String>) data.get("location");
+        if (data.containsKey("user_id")) {
+            mUserId = (String) data.get("user_id");
+        } else {
+            mUserId = "";
+        }
+
+        if (data.containsKey("name")) {
+            mName = (String) data.get("name");
+        } else {
+            mName = "";
+        }
+
+        if (data.containsKey("email")) {
+            mEmail = (String) data.get("email");
+        } else {
+            mEmail = "";
+        }
+
+        if (data.containsKey("notification")) {
+            mNotification = (boolean) data.get("notification");
+        } else {
+            mNotification = true;
+        }
+
+        if (data.containsKey("image_url")) {
+            mImageUrl = (String) data.get("image_url");
+        } else {
+            mImageUrl = "";
+        }
+
+        if (data.containsKey("contents")) {
+            mContents = (ArrayList<String>) data.get("contents");
+        } else {
+            mContents = new ArrayList<String>();
+        }
+
+        if (data.containsKey("purchase")) {
+            mPurchases = (ArrayList<String>) data.get("purchase");
+        } else {
+            mPurchases = new ArrayList<String>();
+        }
+
+        if (data.containsKey("location")) {
+            mLocations = (ArrayList<String>) data.get("location");
+        } else {
+            mLocations = new ArrayList<String>();
+        }
+    }
+
+    public void setUserId(String userid) {
+        mUserId = userid;
     }
 
     public String getUserId() {
@@ -39,6 +85,10 @@ public class UserModel {
 
     public String getName() {
         return mName;
+    }
+
+    public String getEmail() {
+        return mEmail;
     }
 
     public boolean getNotification() {
@@ -66,6 +116,7 @@ public class UserModel {
 
         data.put("user_id", mUserId);
         data.put("name", mName);
+        data.put("name", mEmail);
         data.put("notification", mNotification);
         data.put("image_url", mImageUrl);
         data.put("contents", mContents);

@@ -103,7 +103,6 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
         if (!mayRequestContacts()) {
             return;
         }
-
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -195,9 +194,7 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signUpWithEmail:success");
-                            //Toast.makeText(SignupActivity.this, "Registration success.", Toast.LENGTH_SHORT).show();
                             sendEmailVerification();
-                            //nextStep();
                         } else {
                             Log.w(TAG, "signUpWithEmail:failure", task.getException());
                             Toast.makeText(SignupActivity.this, "Registration failed.", Toast.LENGTH_SHORT).show();
@@ -228,6 +225,9 @@ public class SignupActivity extends AppCompatActivity implements LoaderCallbacks
     }
 
     private void nextStep() {
+        // set user info. to database
+
+        // finish activity
         finish();
     }
 
