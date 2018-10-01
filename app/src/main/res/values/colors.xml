@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2196f3</color>
-    <color name="colorPrimaryDark">#1970b7</color>
+    <color name="colorPrimary">#FCFDFF</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorToTintWith">#FF0000</color>
+    <color name="colorMainAppbarBG">#FCFDFF</color>
+    <color name="colorMainAppbarFont">#666666</color>
+    <color name="colorMainWhite">#FFFFFF</color>
+    <color name="colorFontContents">#484848</color>
+    <color name="colorFontGray">#A5A5A5</color>
 </resources>
+
