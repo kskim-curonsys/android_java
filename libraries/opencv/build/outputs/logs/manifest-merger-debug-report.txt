@@ -1,12 +1,12 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-8:12
+ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-7:12
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-7:12
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-7:12
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-7:12
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-7:12
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-7:12
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:2:1-7:12
 	package
 		ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:3:7-27
 		INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
@@ -22,16 +22,16 @@ INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidM
 		INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
 		INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
 uses-sdk
-ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:7:5-44
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:7:5-44
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:7:5-44
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:7:5-44
-INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:7:5-44
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
+INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
 	android:targetSdkVersion
 		INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
-		ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:7:5-44
+		ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
 		INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
 	android:minSdkVersion
-		ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml:7:15-41
 		INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
+		ADDED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
 		INJECTED from C:\Users\kskim\source\repos\android_java\libraries\opencv\AndroidManifest.xml
