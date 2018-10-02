@@ -107,8 +107,7 @@
         <activity
             android:name=".activity.ItemListActivity"
             android:label="@string/title_item_list"
-            android:parentActivityName=".ChooseActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".ChooseActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
