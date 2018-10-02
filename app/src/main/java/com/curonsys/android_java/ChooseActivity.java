@@ -527,9 +527,6 @@ public class ChooseActivity extends AppCompatActivity
         } else if (id == R.id.nav_signup) {
             goSignupStep();
 
-        } else if (id == R.id.nav_upload) {
-            goTestUpload();
-
         } else if (id == R.id.nav_download) {
             goTestDownload();
 
