@@ -39,6 +39,11 @@
     <string name="choose_location_test">Get Last</string>
     <string name="choose_location_stop">Stop</string>
 
+    <!-- ChooseActivity -->
+    <string name="choose_contents_title1">Title 1</string>
+    <string name="choose_contents_title2">Title 2</string>
+    <string name="choose_list_item_text1">Test Item</string>
+
     <!-- Error strings -->
     <string name="geofence_not_available">Geofence service is not available now</string>
     <string name="geofence_too_many_geofences">Your app has registered too many geofences</string>
@@ -60,6 +65,7 @@
     <string name="geofence_transition_notification_text">Click notification to return to app</string>
 
     <string name="search_title">Find Places</string>
+    <string name="search_hint">Search</string>
 
     <!-- Strings related to Settings -->
 

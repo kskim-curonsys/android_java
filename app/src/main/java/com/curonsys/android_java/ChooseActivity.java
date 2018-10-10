@@ -2,12 +2,14 @@ package com.curonsys.android_java;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Geocoder;
 import android.location.Location;
@@ -23,8 +25,14 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -42,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.curonsys.android_java.adapter.MyAdapter;
 import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
@@ -146,18 +155,51 @@ public class ChooseActivity extends AppCompatActivity
     private MaterialDialog mMaterialProgress = null;
     private MaterialDialog.Builder mMaterialProgressBuilder = null;
 
-    private ImageView mTestImage;
     private ImageView mProfileImage;
     private TextView mProfileName;
     private TextView mProfileEmail;
+
+    private Button mSearchBtn;
+    private Button mSettingsBtn;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+    private ArrayList<String> myDataset;
+
+    /*
+    private ImageView mTestImage;
     private TextView mTestResult;
     private TextView mAddressResult;
     private Button mTestLocation;
     private Button mStopLocation;
+    */
 
     protected Location mLastLocation = null;
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
     private MarkerAddressReceiver mAddressReceiver = new MarkerAddressReceiver(new Handler());
+
+    public class ItemOffsetDecoration extends RecyclerView.ItemDecoration {
+        private int offset;
+
+        public ItemOffsetDecoration(int offset) {
+            this.offset = offset;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view,
+                                   RecyclerView parent, RecyclerView.State state) {
+
+            // Add padding only to the zeroth item
+            if (parent.getChildAdapterPosition(view) == 0) {
+                outRect.right = offset;
+                outRect.left = offset;
+                outRect.top = offset;
+                outRect.bottom = offset;
+            }
+        }
+    }
 
     class AddressResultReceiver extends ResultReceiver {
         public AddressResultReceiver(Handler handler) {
@@ -229,6 +271,7 @@ public class ChooseActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -237,6 +280,7 @@ public class ChooseActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
+        */
 
         mAuth = FirebaseAuth.getInstance();
         mStorage = FirebaseStorage.getInstance(STORAGE_BASE_URL);
@@ -284,11 +328,29 @@ public class ChooseActivity extends AppCompatActivity
         mProfileName = (TextView) header.findViewById(R.id.profile_name);
         mProfileEmail = (TextView) header.findViewById(R.id.profile_email);
 
+        myDataset = new ArrayList<String>();
+        for (int i = 0; i < 20; i++) {
+            String str = "test item " + i;
+            myDataset.add(str);
+        }
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.my_main_recycler_view);
+        //mRecyclerView.addItemDecoration(new ItemOffsetDecoration(20));
+        //mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+
+        mRecyclerView.setHasFixedSize(false);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new MyAdapter(myDataset);
+        mRecyclerView.setAdapter(mAdapter);
+
+        /*
         mTestImage = (ImageView) findViewById(R.id.test_imageview);
         mTestResult = (TextView) findViewById(R.id.test_textview);
         mTestResult.setMovementMethod(new ScrollingMovementMethod());
         mAddressResult = (TextView) findViewById(R.id.address_textview);
-
         mTestLocation = (Button) findViewById(R.id.choose_location_btn);
         mTestLocation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -319,6 +381,7 @@ public class ChooseActivity extends AppCompatActivity
                 stopMonitorGeofences();
             }
         });
+        */
 
         mLocationUpdateState = true;    // temp: default set
         getLastLocation();
@@ -448,7 +511,7 @@ public class ChooseActivity extends AppCompatActivity
                 String info = "Find Place: " + "\n" + place.getName() + "\n" + place.getAddress() +
                         "\n" + place.getLatLng() + "\n" + place.getViewport();
                 mOutput += info + "\n\n";
-                mTestResult.setText(mOutput);
+                //mTestResult.setText(mOutput);
                 Log.i(TAG, info);
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -471,7 +534,7 @@ public class ChooseActivity extends AppCompatActivity
                 String info = "Find Place: " + "\n" + place.getName() + "\n" + place.getAddress() +
                         "\n" + place.getLatLng() + "\n" + place.getViewport();
                 mOutput += info + "\n\n";
-                mTestResult.setText(mOutput);
+                //mTestResult.setText(mOutput);
                 Log.i(TAG, info);
 
             }
@@ -492,7 +555,9 @@ public class ChooseActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.choose, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.choose, menu);
+
         return true;
     }
 
@@ -500,7 +565,13 @@ public class ChooseActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.search) {
+            Log.d(TAG, "Do Find: ");
+
+            return true;
+        } else if (id == R.id.action_settings) {
+            Log.d(TAG, "Do Settings: ");
+
             return true;
         }
 
@@ -570,7 +641,7 @@ public class ChooseActivity extends AppCompatActivity
             double difflon = longitudeInDifference(latitude, 500);
 
             mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "\n" + "speed : " + speed + "\n\n";
-            mTestResult.setText(mOutput);
+            //mTestResult.setText(mOutput);
 
             Log.d(TAG, "Lat: " + latitude);
             Log.d(TAG, "Lon: " + longitude);
@@ -643,7 +714,7 @@ public class ChooseActivity extends AppCompatActivity
                                 float speed = location.getSpeed();
 
                                 mOutput += "last lat : " + latitude + "\n" + "last lon : " + longitude + "\n" + "speed : " + speed + "m/s" + "\n\n";
-                                mTestResult.setText(mOutput);
+                                //mTestResult.setText(mOutput);
                             }
                         }
                     });
@@ -739,7 +810,7 @@ public class ChooseActivity extends AppCompatActivity
                 is = am.open("lake.png");
                 if (is != null) {
                     Bitmap bm = BitmapFactory.decodeStream(is);
-                    mTestImage.setImageBitmap(bm);
+                    //mTestImage.setImageBitmap(bm);
                     mProfileImage.setImageBitmap(bm);
                     is.close();
 
@@ -764,14 +835,14 @@ public class ChooseActivity extends AppCompatActivity
             }
 
         } else {
-            mTestImage.setImageResource(R.mipmap.ic_launcher_round);
+            //mTestImage.setImageResource(R.mipmap.ic_launcher_round);
             mProfileImage.setImageResource(R.mipmap.ic_launcher_round);
             mProfileName.setText("Android Studio");
             mProfileEmail.setText("android.studio@android.com");
         }
 
-        mTestResult.setText(mOutput);
-        mAddressResult.setText(mAddressOutput);
+        //mTestResult.setText(mOutput);
+        //mAddressResult.setText(mAddressOutput);
     }
 
     private boolean checkLogin() {
@@ -857,6 +928,7 @@ public class ChooseActivity extends AppCompatActivity
         if (checkLogin()) {
             StorageReference storageRef = mStorage.getReference("images/lake.png");
 
+            /*
             mTestImage.setDrawingCacheEnabled(true);
             mTestImage.buildDrawingCache();
             Bitmap bitmap = ((BitmapDrawable) mTestImage.getDrawable()).getBitmap();
@@ -881,6 +953,7 @@ public class ChooseActivity extends AppCompatActivity
                     mTestResult.setText(result);
                 }
             });
+            */
 
         } else {
             Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
@@ -947,7 +1020,7 @@ public class ChooseActivity extends AppCompatActivity
                                             public void onResponse(TransferModel response) {
                                                 if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
                                                     Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
-                                                    mTestImage.setImageBitmap(downBitmap);
+                                                    //mTestImage.setImageBitmap(downBitmap);
                                                 }
                                                 Log.d(TAG, "onResponse: content download complete ");
                                             }
