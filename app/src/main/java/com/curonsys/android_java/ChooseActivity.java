@@ -180,27 +180,6 @@ public class ChooseActivity extends AppCompatActivity
     private AddressResultReceiver mResultReceiver = new AddressResultReceiver(new Handler());
     private MarkerAddressReceiver mAddressReceiver = new MarkerAddressReceiver(new Handler());
 
-    public class ItemOffsetDecoration extends RecyclerView.ItemDecoration {
-        private int offset;
-
-        public ItemOffsetDecoration(int offset) {
-            this.offset = offset;
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view,
-                                   RecyclerView parent, RecyclerView.State state) {
-
-            // Add padding only to the zeroth item
-            if (parent.getChildAdapterPosition(view) == 0) {
-                outRect.right = offset;
-                outRect.left = offset;
-                outRect.top = offset;
-                outRect.bottom = offset;
-            }
-        }
-    }
-
     class AddressResultReceiver extends ResultReceiver {
         public AddressResultReceiver(Handler handler) {
             super(handler);
@@ -210,10 +189,19 @@ public class ChooseActivity extends AppCompatActivity
             if (resultData == null) {
                 return;
             }
-            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+            //mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+            String info = resultData.getString(Constants.RESULT_DATA_KEY);
+            if (info != null) {
+                info += "\n";
+                myDataset.add(info);
+                mAdapter.notifyItemInserted(myDataset.size() - 1);
+            }
+
+            /*
             if (mAddressOutput == null) {
                 mAddressOutput = "";
             }
+            */
             if (resultCode == Constants.SUCCESS_RESULT) {
                 updateUI();
             }
@@ -329,13 +317,10 @@ public class ChooseActivity extends AppCompatActivity
         mProfileEmail = (TextView) header.findViewById(R.id.profile_email);
 
         myDataset = new ArrayList<String>();
-        for (int i = 0; i < 20; i++) {
-            String str = "test item " + i;
-            myDataset.add(str);
-        }
+        String str = "Location Tracking..";
+        myDataset.add(str);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.my_main_recycler_view);
-        //mRecyclerView.addItemDecoration(new ItemOffsetDecoration(20));
         //mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
 
         mRecyclerView.setHasFixedSize(false);
@@ -343,8 +328,31 @@ public class ChooseActivity extends AppCompatActivity
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new MyAdapter(myDataset);
+        mAdapter = new MyAdapter(myDataset, new MyAdapter.ButtonClickCallback() {
+            @Override
+            public void onClicked(int position) {
+                Log.d(TAG, "onClick: item " + position);
+
+                if (position == 0) {
+                    Log.d(TAG, "onClick: Test Location");
+                    getLastLocation();
+                    if (mLastLocation == null) {
+                        return;
+                    }
+                    if (!Geocoder.isPresent()) {
+                        Toast.makeText(ChooseActivity.this,
+                                R.string.no_geocoder_available,
+                                Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    startFetchAddressIntentService();
+                    updateUI();
+                    startMonitorGeofences();
+                }
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
+
 
         /*
         mTestImage = (ImageView) findViewById(R.id.test_imageview);
@@ -512,7 +520,10 @@ public class ChooseActivity extends AppCompatActivity
                         "\n" + place.getLatLng() + "\n" + place.getViewport();
                 mOutput += info + "\n\n";
                 //mTestResult.setText(mOutput);
+                info += "\n";
+                myDataset.add(info);
                 Log.i(TAG, info);
+                mAdapter.notifyItemInserted(myDataset.size() - 1);
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
@@ -535,7 +546,10 @@ public class ChooseActivity extends AppCompatActivity
                         "\n" + place.getLatLng() + "\n" + place.getViewport();
                 mOutput += info + "\n\n";
                 //mTestResult.setText(mOutput);
+                info += "\n";
+                myDataset.add(info);
                 Log.i(TAG, info);
+                mAdapter.notifyItemInserted(myDataset.size() - 1);
 
             }
         } else {
@@ -640,8 +654,11 @@ public class ChooseActivity extends AppCompatActivity
             double difflat = latitudeInDifference(500);
             double difflon = longitudeInDifference(latitude, 500);
 
-            mOutput += "lat : " + latitude + "\n" + "lon : " + longitude + "\n" + "speed : " + speed + "\n\n";
+            String info = "lat : " + latitude + "\n" + "lon : " + longitude + "\n" + "speed : " + speed + "\n\n";
             //mTestResult.setText(mOutput);
+            info += "\n";
+            myDataset.add(info);
+            mAdapter.notifyItemInserted(myDataset.size() - 1);
 
             Log.d(TAG, "Lat: " + latitude);
             Log.d(TAG, "Lon: " + longitude);
