@@ -23,6 +23,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private static final int TYPE_FOOTER = 2;
     private ArrayList<String> mList;
 
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView mNameTextView;
+        public Button mMessageButton;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            mNameTextView = (TextView) itemView.findViewById(R.id.contact_name);
+            mMessageButton = (Button) itemView.findViewById(R.id.message_button);
+        }
+    }
+
     public MyAdapter(ArrayList<String> list) {
         mList = list;
     }
@@ -53,16 +65,4 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return mList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public TextView mNameTextView;
-        public Button mMessageButton;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            mNameTextView = (TextView) itemView.findViewById(R.id.contact_name);
-            mMessageButton = (Button) itemView.findViewById(R.id.message_button);
-        }
-    }
 }
