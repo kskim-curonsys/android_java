@@ -1,6 +1,9 @@
 package com.curonsys.android_java.activity;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,9 +14,14 @@ import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.fragment.ContentModelDetailFragment;
+import com.curonsys.android_java.model.ContentModel;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 
 /**
@@ -25,12 +33,16 @@ import com.curonsys.android_java.fragment.ContentModelDetailFragment;
 public class ItemDetailActivity extends AppCompatActivity {
     private static final String TAG = ItemDetailActivity.class.getSimpleName();
 
+    private ImageView mBGImage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
+
+        mBGImage = (ImageView) findViewById(R.id.backdrop);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -60,10 +72,28 @@ public class ItemDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(ContentModelDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(ContentModelDetailFragment.ARG_ITEM_ID));
-            arguments.putSerializable(ContentModelDetailFragment.ARG_ITEM,
-                    getIntent().getSerializableExtra(ContentModelDetailFragment.ARG_ITEM));
+
+            String itemID = getIntent().getStringExtra(ContentModelDetailFragment.ARG_ITEM_ID);
+            ContentModel itemModel = (ContentModel) getIntent().getSerializableExtra(ContentModelDetailFragment.ARG_ITEM);
+
+            // set bg
+            AssetManager am = getResources().getAssets();
+            InputStream is = null;
+
+            try {
+                is = am.open("lake.png");
+                if (is != null) {
+                    Bitmap bm = BitmapFactory.decodeStream(is);
+                    mBGImage.setImageBitmap(bm);
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            arguments.putString(ContentModelDetailFragment.ARG_ITEM_ID, itemID);
+            arguments.putSerializable(ContentModelDetailFragment.ARG_ITEM, itemModel);
+
             ContentModelDetailFragment fragment = new ContentModelDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

@@ -51,6 +51,8 @@ public class ContentModelDetailFragment extends Fragment {
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
                 appBarLayout.setTitle(mItem.getContentName());
+                appBarLayout.setExpandedTitleTextAppearance(R.style.ExpandedAppBar);
+                appBarLayout.setCollapsedTitleTextAppearance(R.style.CollapsedAppBar);
             }
         }
     }
@@ -61,7 +63,6 @@ public class ContentModelDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_content_model_detail, container, false);
 
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_content_detail_view);
-        //mRecyclerView.addItemDecoration(new ItemOffsetDecoration(20));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
 
         ArrayList<String> list = new ArrayList<String>();

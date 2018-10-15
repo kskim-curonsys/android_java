@@ -979,11 +979,18 @@ public class ChooseActivity extends AppCompatActivity
 
     private void goTestDownload() {
         if (checkLogin()) {
+            /*
             mMaterialProgress.show();
 
             FirebaseUser currentUser = mAuth.getCurrentUser();
             String userid = currentUser.getUid();
-            getUserContents(userid);
+            //getUserContentsWithAllFiles(userid);
+            */
+            Intent intent = new Intent(this, ImageGridActivity.class);
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
+
         } else {
             Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
@@ -1007,7 +1014,7 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
-    private void getUserContents(String userid) {
+    private void getUserContentsWithAllFiles(String userid) {
         // test download all files
         mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
             @Override
