@@ -26,6 +26,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -325,7 +326,10 @@ public class ChooseActivity extends AppCompatActivity
         myDataset.add(str);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.my_main_recycler_view);
-        //mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+
+        DividerItemDecoration itemDecorator = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
+        itemDecorator.setDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.mydivider));
+        mRecyclerView.addItemDecoration(itemDecorator);
 
         mRecyclerView.setHasFixedSize(false);
 
