@@ -22,6 +22,7 @@ import android.os.ResultReceiver;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -258,6 +259,9 @@ public class ChooseActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //AppBarLayout appbarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
+        //appbarLayout.setOutlineProvider(null);
 
         /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
