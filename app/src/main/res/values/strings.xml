@@ -39,6 +39,8 @@
     <string name="choose_location_test">Get Last</string>
     <string name="choose_location_stop">Stop</string>
 
+    <string name="button_text_test">Test</string>
+
     <!-- ChooseActivity -->
     <string name="choose_contents_title1">Title 1</string>
     <string name="choose_contents_title2">Title 2</string>
