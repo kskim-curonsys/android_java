@@ -19,8 +19,10 @@ public class BottomActivity extends AppCompatActivity {
     private TextView mTextMessage;
 
     private ArrayList<String> myStringArray = new ArrayList<String>();
+    private ArrayList<String> myStringArrayEmpty = new ArrayList<String>();
 
     ArrayAdapter<String> mAdapter;
+    ArrayAdapter<String> mAdapterEmpty;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -28,19 +30,39 @@ public class BottomActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
+                case R.id.navigation_home: {
+                    mTextMessage.setText("");
                     getMyListData();
 
                     ListView listView = (ListView) findViewById(R.id.mycontact_list);
                     listView.setAdapter(mAdapter);
 
                     return true;
-                case R.id.navigation_dashboard:
+                }
+
+                case R.id.navigation_dashboard: {
+                    mTextMessage.setText("");
+                    ListView listView = (ListView) findViewById(R.id.mycontact_list);
+                    listView.setAdapter(mAdapterEmpty);
                     mTextMessage.setText(R.string.large_text);
                     return true;
-                case R.id.navigation_notifications:
+                }
+
+                case R.id.navigation_notifications: {
+                    mTextMessage.setText("");
+                    ListView listView = (ListView) findViewById(R.id.mycontact_list);
+                    listView.setAdapter(mAdapterEmpty);
                     mTextMessage.setText(R.string.title_notifications);
                     return true;
+                }
+
+                case R.id.navigation_info: {
+                    mTextMessage.setText("");
+                    ListView listView = (ListView) findViewById(R.id.mycontact_list);
+                    listView.setAdapter(mAdapterEmpty);
+                    mTextMessage.setText(R.string.title_info);
+                    return true;
+                }
             }
             return false;
         }
@@ -56,8 +78,8 @@ public class BottomActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        mAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, myStringArray);
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, myStringArray);
+        mAdapterEmpty = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, myStringArrayEmpty);
     }
 
     private void getMyListData() {

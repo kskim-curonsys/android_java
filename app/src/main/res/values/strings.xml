@@ -148,6 +148,8 @@
     <string name="title_home">General</string>
     <string name="title_dashboard">Contents</string>
     <string name="title_notifications">Published</string>
+    <string name="title_info">Info</string>
+    <string name="title_sync">Sync</string>
     <string name="title_activity_login">Log In</string>
     <string name="title_activity_signup">Sign Up</string>
     <string name="title_activity_camera">CameraActivity</string>
