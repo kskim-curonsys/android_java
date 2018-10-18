@@ -40,6 +40,8 @@
     <string name="choose_location_stop">Stop</string>
 
     <string name="button_text_test">Test</string>
+    <string name="button_text_time_picker">Pick Time</string>
+    <string name="button_text_date_picker">Pick Date</string>
 
     <!-- ChooseActivity -->
     <string name="choose_contents_title1">Title 1</string>
