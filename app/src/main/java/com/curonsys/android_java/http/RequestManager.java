@@ -12,6 +12,9 @@ import com.curonsys.android_java.model.ContentsListModel;
 import com.curonsys.android_java.model.DownloadModel;
 import com.curonsys.android_java.model.MarkerListModel;
 import com.curonsys.android_java.model.MarkerModel;
+import com.curonsys.android_java.model.OrderModel;
+import com.curonsys.android_java.model.ProductModel;
+import com.curonsys.android_java.model.ShopModel;
 import com.curonsys.android_java.model.TransferModel;
 import com.curonsys.android_java.model.UserContentsModel;
 import com.curonsys.android_java.model.UserModel;
@@ -88,20 +91,20 @@ public class RequestManager {
         public void onResponse(UserModel response);
     }
 
-    public interface ContentsListCallback {
-        public void onResponse(ArrayList<ContentModel> response);
-    }
-
     public interface ContentCallback {
         public void onResponse(ContentModel response);
     }
 
-    public interface MarkerListCallback {
-        public void onResponse(ArrayList<MarkerModel> response);
+    public interface ContentsListCallback {
+        public void onResponse(ArrayList<ContentModel> response);
     }
 
     public interface MarkerCallback {
         public void onResponse(MarkerModel response);
+    }
+
+    public interface MarkerListCallback {
+        public void onResponse(ArrayList<MarkerModel> response);
     }
 
     public interface TransferCallback {
@@ -111,6 +114,27 @@ public class RequestManager {
     public interface SuccessCallback {
         public void onResponse(boolean success);
     }
+
+    public interface ShopCallback {
+        public void onResponse(ShopModel response);
+    }
+
+    public interface ProductCallback {
+        public void onResponse(ProductModel response);
+    }
+
+    public interface ProductListCallback {
+        public void onResponse(ArrayList<ProductModel> response);
+    }
+
+    public interface OrderCallback {
+        public void onResponse(OrderModel response);
+    }
+
+    public interface OrderListCallback {
+        public void onResponse(ArrayList<OrderModel> response);
+    }
+
 
     public RequestManager() {
         mFirestore = FirebaseFirestore.getInstance();
@@ -538,6 +562,25 @@ public class RequestManager {
                 callback.onResponse(result);
             }
         });
+    }
+
+    // shop info
+    public void requestGetShopInfo(String shop_id) {
+
+    }
+
+    // product list
+    public void requestGetProductList(String shop_id) {
+
+    }
+
+    // order list
+    public void requestGetOrderList(String shop_id) {
+    }
+
+    // update order info
+    public void requestSetOrderInfo() {
+
     }
 
 }

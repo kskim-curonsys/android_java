@@ -905,7 +905,8 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goAccount() {
-        Intent intent = new Intent(this, ScrollingActivity.class);
+        //Intent intent = new Intent(this, ScrollingActivity.class);
+        Intent intent = new Intent(this, SettingsActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }

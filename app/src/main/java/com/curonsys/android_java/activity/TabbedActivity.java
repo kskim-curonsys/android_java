@@ -9,7 +9,10 @@ import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -25,11 +28,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.curonsys.android_java.R;
+import com.curonsys.android_java.adapter.ContentsListRecyclerViewAdapter;
+import com.curonsys.android_java.http.RequestManager;
+import com.curonsys.android_java.model.ContentModel;
+
+import java.util.ArrayList;
 
 public class TabbedActivity extends AppCompatActivity {
     private static final String TAG = TabbedActivity.class.getSimpleName();
@@ -138,10 +148,32 @@ public class TabbedActivity extends AppCompatActivity {
                 TextView textView = (TextView) rootView.findViewById(R.id.section_label);
                 textView.setText(getString(R.string.section_format, index));
 
-
+                SwipeRefreshLayout swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+                swipe.setOnRefreshListener(
+                        new SwipeRefreshLayout.OnRefreshListener() {
+                            @Override
+                            public void onRefresh() {
+                                Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
+                                swipe.setRefreshing(false);
+                            }
+                        }
+                );
 
             } else if (index == 2) {
                 rootView = inflater.inflate(R.layout.fragment_tabbed2, container, false);
+
+                SwipeRefreshLayout swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh2);
+                swipe.setOnRefreshListener(
+                        new SwipeRefreshLayout.OnRefreshListener() {
+                            @Override
+                            public void onRefresh() {
+                                Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
+                                swipe.setRefreshing(false);
+                            }
+                        }
+                );
+
+                getContentsList(rootView);
 
             } else if (index == 3) {
                 rootView = inflater.inflate(R.layout.fragment_tabbed3, container, false);
@@ -149,6 +181,20 @@ public class TabbedActivity extends AppCompatActivity {
             }
 
             return rootView;
+        }
+
+        private void getContentsList(View rootView) {
+            ArrayList<ContentModel> items = new ArrayList<ContentModel>();
+
+            RequestManager rm = RequestManager.getInstance();
+            rm.requestGetAllContents(new RequestManager.ContentsListCallback() {
+                @Override
+                public void onResponse(ArrayList<ContentModel> response) {
+                    RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.contents_list);
+                    recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+                    recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(null, response, false));
+                }
+            });
         }
     }
 
