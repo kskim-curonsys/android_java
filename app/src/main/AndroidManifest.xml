@@ -180,7 +180,16 @@
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
 
-        <activity android:name=".activity.ARCoreTestActivity"></activity>
+        <activity
+            android:name=".activity.ARCoreTestActivity"
+            android:label="@string/title_activity_arcoretest"
+            android:parentActivityName=".ChooseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
+
+        </activity>
+
         <activity
             android:name=".arcore.AugmentedImageActivity"
             android:configChanges="orientation|screenSize"
@@ -189,7 +198,7 @@
             android:screenOrientation="locked">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.curonsys.android_java.ChooseActivity" />
+                android:value="com.curonsys.android_java.activity.ARCoreTestActivity" />
         </activity>
         <activity
             android:name=".arcore.ChromaKeyVideoActivity"
