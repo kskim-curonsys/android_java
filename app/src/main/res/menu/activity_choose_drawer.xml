@@ -22,7 +22,7 @@
         <item
             android:id="@+id/nav_arcamera"
             android:icon="@drawable/ic_menu_camera"
-            android:title="ARCamera" />
+            android:title="ARCoreTest" />
         <item
             android:id="@+id/nav_options"
             android:icon="@drawable/ic_menu_settings"

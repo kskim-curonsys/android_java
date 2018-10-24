@@ -44,8 +44,16 @@
     <string name="button_text_date_picker">Pick Date</string>
     <string name="button_text_list_footer">Add Item</string>
 
+    <string name="button_text_arcore1">Augmented Image</string>
+    <string name="button_text_arcore2">Chromakey Video</string>
+    <string name="button_text_arcore3">SceneView Test</string>
+    <string name="button_text_arcore4">Cloud Anchors</string>
+
     <string name="textview_text_list_title">Title</string>
     <string name="textview_text_list_count">0</string>
+
+    <string name="fit_image_to_scan">Fit image to scan</string>
+    <string name="plane_finding">Searching for surfaces&#8230;</string>
 
     <!-- ChooseActivity -->
     <string name="choose_contents_title1">Title 1</string>

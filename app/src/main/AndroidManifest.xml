@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.curonsys.android_java">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
@@ -17,6 +18,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+
     <uses-feature android:name="android.hardware.camera" />
 
     <application
@@ -25,11 +27,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="false"
+        tools:ignore="GoogleAppIndexingWarning">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBlhcGq5Yst_dbTmakaPdwD2bm_mMFqJ6k" />
-        <meta-data android:name="com.google.ar.core" android:value="optional" />
 
         <activity
             android:name=".ChooseActivity"
@@ -176,6 +179,42 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
         </activity>
+
+        <activity android:name=".activity.ARCoreTestActivity"></activity>
+        <activity
+            android:name=".arcore.AugmentedImageActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="locked">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
+        </activity>
+        <activity
+            android:name=".arcore.ChromaKeyVideoActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="locked"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.activity.ARCoreTestActivity" />
+        </activity>
+
+        <activity
+            android:name=".arcore.SolarActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:exported="true">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.activity.ARCoreTestActivity" />
+        </activity>
+
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
     </application>
 
 </manifest>

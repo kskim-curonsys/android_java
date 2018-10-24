@@ -934,7 +934,8 @@ public class ChooseActivity extends AppCompatActivity
     }
 
     private void goARCamera() {
-        Intent intent = new Intent(this, ARCameraActivity.class);
+        //Intent intent = new Intent(this, ARCameraActivity.class);
+        Intent intent = new Intent(this, ARCoreTestActivity.class);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }

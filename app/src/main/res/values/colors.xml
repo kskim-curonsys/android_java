@@ -10,5 +10,6 @@
     <color name="colorFontContents">#484848</color>
     <color name="colorFontGray">#A5A5A5</color>
     <color name="colorContentsBG">#FAFAFA</color>
+    <color name="deep_teal">#ff009688</color>
 </resources>
 
