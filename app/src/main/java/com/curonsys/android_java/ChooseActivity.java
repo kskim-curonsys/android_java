@@ -154,9 +154,6 @@ public class ChooseActivity extends AppCompatActivity
     private List<Geofence> mGeofenceList = new ArrayList<Geofence>();
     private PendingIntent mGeofencePendingIntent;
 
-    private MaterialDialog mMaterialProgress = null;
-    private MaterialDialog.Builder mMaterialProgressBuilder = null;
-
     private ImageView mProfileImage;
     private TextView mProfileName;
     private TextView mProfileEmail;
@@ -402,12 +399,6 @@ public class ChooseActivity extends AppCompatActivity
         mLocationUpdateState = true;    // temp: default set
         getLastLocation();
         updateUI();
-
-        mMaterialProgressBuilder = new MaterialDialog.Builder(this)
-                .title("컨텐츠 다운로드")
-                .content("컨텐츠 목록을 다운로드중입니다...")
-                .progress(true, 0);
-        mMaterialProgress = mMaterialProgressBuilder.build();
     }
 
     @Override
@@ -989,19 +980,6 @@ public class ChooseActivity extends AppCompatActivity
         }
     }
 
-    private void goTestDownload() {
-        if (checkLogin()) {
-            mMaterialProgress.show();
-
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            String userid = currentUser.getUid();
-            getUserContentsWithAllFiles(userid);
-
-        } else {
-            Snackbar.make(mProfileImage, "Please, Log in first.", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        }
-    }
-
     private void goTestImageGrid() {
         if (checkLogin()) {
             Intent intent = new Intent(this, ImageGridActivity.class);
@@ -1018,6 +996,7 @@ public class ChooseActivity extends AppCompatActivity
         if (checkLogin()) {
             Intent intent = new Intent(this, TabbedActivity.class);
             if (intent.resolveActivity(getPackageManager()) != null) {
+                intent.putExtra("ParentClassSource", ChooseActivity.class.getName());
                 startActivity(intent);
             }
 
@@ -1042,51 +1021,6 @@ public class ChooseActivity extends AppCompatActivity
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
-    }
-
-    private void getUserContentsWithAllFiles(String userid) {
-        // test download all files
-        mRequestManager.requestGetUserInfo(userid, new RequestManager.UserCallback() {
-            @Override
-            public void onResponse(UserModel response) {
-                Log.d(TAG, "onResponse: ContentListModel (" +
-                        response.getUserId() + ", " + response.getName() + ", " + response.getImageUrl() + ")");
-                ArrayList<ContentModel> list = new ArrayList<ContentModel>();
-                ArrayList<String> ids = response.getContents();
-                final int count = ids.size();
-                for (int i = 0; i < count; i++) {
-                    String content_id = ids.get(i);
-                    mRequestManager.requestGetContentInfo(content_id, new RequestManager.ContentCallback() {
-                        @Override
-                        public void onResponse(ContentModel response) {
-                            list.add(response);
-                            if (list.size() == count) {
-                                mMaterialProgress.dismiss();
-                                Log.d(TAG, "onResponse: contents list complete ");
-                                for (int j = 0; j < list.size(); j++) {
-                                    ArrayList<String> urls = list.get(j).getContentUrl();
-                                    String name = list.get(j).getContentName();
-                                    for (int k = 0; k < urls.size(); k++) {
-                                        String url = urls.get(k);
-                                        String suffix = url.substring(url.indexOf('.'), url.length());
-                                        mRequestManager.requesetDownloadFileFromStorage(name, url, suffix, new RequestManager.TransferCallback() {
-                                            @Override
-                                            public void onResponse(TransferModel response) {
-                                                if (response.getSuffix().compareTo(".jpg") == 0 || response.getSuffix().compareTo(".png") == 0) {
-                                                    Bitmap downBitmap = BitmapFactory.decodeFile(response.getPath());
-                                                    //mTestImage.setImageBitmap(downBitmap);
-                                                }
-                                                Log.d(TAG, "onResponse: content download complete ");
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        });
     }
 
     private void getContentInfo(String contentid) {

@@ -63,8 +63,8 @@ public class ContentsListRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mIdView.setText(mValues.get(position).getFormat());
-        holder.mContentView.setText(mValues.get(position).getContentName());
+        holder.mIdView.setText(mValues.get(position).getContentName());
+        holder.mContentView.setText(mValues.get(position).getModel());
 
         holder.itemView.setTag(mValues.get(position));
         holder.itemView.setOnClickListener(mOnClickListener);

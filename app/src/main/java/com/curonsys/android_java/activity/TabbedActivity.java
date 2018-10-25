@@ -3,6 +3,7 @@ package com.curonsys.android_java.activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.icu.util.Calendar;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -89,6 +90,22 @@ public class TabbedActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    @Override
+    public Intent getParentActivityIntent() {
+        Intent parentIntent= getIntent();
+        String className = parentIntent.getStringExtra("ParentClassSource");
+
+        Intent newIntent = null;
+        try {
+            //you need to define the class with package name
+            newIntent = new Intent(TabbedActivity.this, Class.forName(className));
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return newIntent;
     }
 
     @Override

@@ -8,26 +8,22 @@ import java.util.Map;
 public class ContentModel implements Serializable {
     private String mContentId;
     private String mName;
-    private ArrayList<String> mFiles;
-    private ArrayList<String> mTextures;
+    private String mDescription;
     private boolean m3D;
     private boolean mAnimation;
-    private String mFormat;
-    private ArrayList<Float> mRotation;
-    private Number mScale;
-    private String mVersion;
+    private String mModel;
+    private String mThumb;
+    private ArrayList<String> mTextures;
 
     public ContentModel() {
         mContentId = "";
         mName = "";
-        mFiles = new ArrayList<String>();
-        mTextures = new ArrayList<String>();
+        mDescription = "";
         m3D = true;
         mAnimation = true;
-        mFormat = "";
-        mRotation = new ArrayList<Float>();
-        mScale = 0;
-        mVersion = "0.0.0";
+        mModel = "";
+        mThumb = "";
+        mTextures = new ArrayList<String>();
     }
 
     public ContentModel(Map<String, Object> data) {
@@ -43,16 +39,10 @@ public class ContentModel implements Serializable {
             mName = "";
         }
 
-        if (data.containsKey("files")) {
-            mFiles = (ArrayList<String>) data.get("files");
+        if (data.containsKey("describe")) {
+            mDescription = (String) data.get("describe");
         } else {
-            mFiles = new ArrayList<String>();
-        }
-
-        if (data.containsKey("textures")) {
-            mTextures = (ArrayList<String>) data.get("textures");
-        } else {
-            mTextures = new ArrayList<String>();
+            mDescription = "";
         }
 
         if (data.containsKey("3d")) {
@@ -67,28 +57,22 @@ public class ContentModel implements Serializable {
             mAnimation = false;
         }
 
-        if (data.containsKey("format")) {
-            mFormat = (String) data.get("format");
+        if (data.containsKey("model")) {
+            mModel = (String) data.get("model");
         } else {
-            mFormat = "";
+            mModel = "";
         }
 
-        if (data.containsKey("rotation")) {
-            mRotation = (ArrayList<Float>) data.get("rotation");
+        if (data.containsKey("thumb")) {
+            mThumb = (String) data.get("thumb");
         } else {
-            mRotation = new ArrayList<Float>();
+            mThumb = "";
         }
 
-        if (data.containsKey("scale")) {
-            mScale = (Number) data.get("scale");
+        if (data.containsKey("textures")) {
+            mTextures = (ArrayList<String>) data.get("textures");
         } else {
-            mScale = 0;
-        }
-
-        if (data.containsKey("version")) {
-            mVersion = (String) data.get("version");
-        } else {
-            mVersion = "";
+            mTextures = new ArrayList<String>();
         }
     }
 
@@ -104,12 +88,8 @@ public class ContentModel implements Serializable {
         return mName;
     }
 
-    public ArrayList<String> getContentUrl() {
-        return mFiles;
-    }
-
-    public ArrayList<String> getTextureUrl() {
-        return mTextures;
+    public String getDescription() {
+        return mDescription;
     }
 
     public boolean get3D() {
@@ -120,20 +100,16 @@ public class ContentModel implements Serializable {
         return mAnimation;
     }
 
-    public String getFormat() {
-        return  mFormat;
+    public String getModel() {
+        return  mModel;
     }
 
-    public ArrayList<Float> getRotation() {
-        return mRotation;
+    public String getThumb() {
+        return mThumb;
     }
 
-    public Number getContentScale() {
-        return mScale;
-    }
-
-    public String getVersion() {
-        return mVersion;
+    public ArrayList<String> getTextures() {
+        return mTextures;
     }
 
     public Map<String, Object> getData() {
@@ -141,14 +117,12 @@ public class ContentModel implements Serializable {
 
         data.put("content_id", mContentId);
         data.put("name", mName);
-        data.put("files", mFiles);
-        data.put("textures", mTextures);
+        data.put("describe", mDescription);
         data.put("3d", m3D);
         data.put("animation", mAnimation);
-        data.put("format", mFormat);
-        data.put("rotation", mRotation);
-        data.put("scale", mScale);
-        data.put("version", mVersion);
+        data.put("model", mModel);
+        data.put("thumb", mThumb);
+        data.put("textures", mTextures);
 
         return data;
     }

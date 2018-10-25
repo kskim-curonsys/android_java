@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.curonsys.android_java.dummy.DummyContent;
 import com.curonsys.android_java.R;
-import com.curonsys.android_java.model.ContentModel;
 
 
 /**

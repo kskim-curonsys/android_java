@@ -68,8 +68,16 @@ public class ContentModelDetailFragment extends Fragment {
         ArrayList<String> list = new ArrayList<String>();
         list.add("Content ID : " + mItem.getContentId());
         list.add("Content Name : " + mItem.getContentName());
-        list.add("File Format : " + mItem.getFormat());
-        list.add("Content Version : " + mItem.getVersion());
+        list.add("Description : " + mItem.getDescription());
+        list.add("3D : " + mItem.get3D());
+        list.add("Animation : " + mItem.getAnimation());
+        list.add("Model : " + mItem.getModel());
+        list.add("Thumb : " + mItem.getThumb());
+        list.add("Textures");
+        int tsize = mItem.getTextures().size();
+        for (int i = 0; i < tsize; i++) {
+            list.add(" > " + mItem.getTextures().get(i));
+        }
 
         mRecyclerView.setHasFixedSize(false);
 

@@ -128,12 +128,17 @@ public class ContentSwipeRefreshListFragment extends SwipeRefreshListFragment {
 
     private void setListValues() {
         if (mItem != null) {
-            mValues.add(mItem.getContentId());
-            mValues.add(mItem.getContentName());
-            mValues.add(mItem.getFormat());
-            mValues.add(mItem.getVersion());
-            for (int i = 0; i < mItem.getContentUrl().size(); i++) {
-                mValues.add(mItem.getContentUrl().get(i));
+            mValues.add("Content ID : " + mItem.getContentId());
+            mValues.add("Content Name : " + mItem.getContentName());
+            mValues.add("Description : " + mItem.getDescription());
+            mValues.add("3D : " + mItem.get3D());
+            mValues.add("Animation : " + mItem.getAnimation());
+            mValues.add("Model : " + mItem.getModel());
+            mValues.add("Thumb : " + mItem.getThumb());
+            mValues.add("Textures");
+            int tsize = mItem.getTextures().size();
+            for (int i = 0; i < tsize; i++) {
+                mValues.add(" > " + mItem.getTextures().get(i));
             }
         }
     }

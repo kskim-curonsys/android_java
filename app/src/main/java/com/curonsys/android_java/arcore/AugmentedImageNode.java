@@ -30,7 +30,7 @@ public class AugmentedImageNode extends AnchorNode {
   private static CompletableFuture<ModelRenderable> lrCorner;
   private static CompletableFuture<ModelRenderable> llCorner;
 
-  public AugmentedImageNode(Context context) {
+  public AugmentedImageNode(Context context /* index or id */) {
     // Upon construction, start loading the models for the corners of the frame.
     if (ulCorner == null) {
       ulCorner =

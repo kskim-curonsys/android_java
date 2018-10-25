@@ -49,6 +49,8 @@
     <string name="button_text_arcore3">SceneView Test</string>
     <string name="button_text_arcore4">Cloud Anchors</string>
 
+    <string name="button_text_select">Select</string>
+
     <string name="textview_text_list_title">Title</string>
     <string name="textview_text_list_count">0</string>
 
