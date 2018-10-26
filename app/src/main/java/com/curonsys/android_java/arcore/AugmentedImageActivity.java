@@ -125,6 +125,8 @@ public class AugmentedImageActivity extends AppCompatActivity {
         if (intent.resolveActivity(getPackageManager()) != null) {
             intent.putExtra("ParentClassSource", AugmentedImageActivity.class.getName());
             startActivity(intent);
+
+
         }
     }
 
