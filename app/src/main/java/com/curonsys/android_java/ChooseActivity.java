@@ -53,6 +53,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.adapter.MyAdapter;
+import com.curonsys.android_java.arcore.AugmentedImageActivity;
 import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
 import com.curonsys.android_java.model.ContentsListModel;
@@ -580,11 +581,10 @@ public class ChooseActivity extends AppCompatActivity
 
         if (id == R.id.search) {
             Log.d(TAG, "Do Find: ");
-
+            goAugmentedImageActivity();
             return true;
         } else if (id == R.id.action_settings) {
             Log.d(TAG, "Do Settings: ");
-
             return true;
         }
 
@@ -1026,6 +1026,13 @@ public class ChooseActivity extends AppCompatActivity
     private void getContentInfo(String contentid) {
         //ListView list;
 
+    }
+
+    private void goAugmentedImageActivity() {
+        Intent intent = new Intent(this, AugmentedImageActivity.class);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     private void uploadMarkerImage() {
