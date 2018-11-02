@@ -7,6 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.curonsys.android_java.R;
@@ -61,8 +63,11 @@ public class SimpleItemRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mName.setText(mValues.get(position).getId());
+        holder.mDescription.setText(mValues.get(position).getDetails());
+        // get image..
+        holder.mThumbnail.setImageResource(R.mipmap.ic_launcher_round);
+
 
         holder.itemView.setTag(mValues.get(position));
         holder.itemView.setOnClickListener(mOnClickListener);
@@ -74,13 +79,17 @@ public class SimpleItemRecyclerViewAdapter
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        final TextView mIdView;
-        final TextView mContentView;
+        final TextView mName;
+        final TextView mDescription;
+        final ImageView mThumbnail;
+        final Button mSelect;
 
         ViewHolder(View view) {
             super(view);
-            mIdView = (TextView) view.findViewById(R.id.id_text);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mName = (TextView) view.findViewById(R.id.text_name);
+            mDescription = (TextView) view.findViewById(R.id.text_description);
+            mThumbnail = (ImageView) view.findViewById(R.id.image_thumbnail);
+            mSelect = (Button) view.findViewById(R.id.button_select);
         }
     }
 

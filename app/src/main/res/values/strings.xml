@@ -49,7 +49,10 @@
     <string name="button_text_arcore3">SceneView Test</string>
     <string name="button_text_arcore4">Cloud Anchors</string>
 
-    <string name="button_text_select">Select</string>
+    <string name="button_text_select">Use</string>
+
+    <string name="textview_text_item_name1">Earth Model</string>
+    <string name="textview_text_item_content1">Earth is the third planet from the Sun and the only astronomical object known to harbor life. According to radiometric dating and other sources of evidence, Earth formed over 4.5 billion years ago.</string>
 
     <string name="textview_text_list_title">Title</string>
     <string name="textview_text_list_count">0</string>

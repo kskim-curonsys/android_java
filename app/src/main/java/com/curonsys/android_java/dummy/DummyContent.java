@@ -68,5 +68,17 @@ public class DummyContent {
         public String toString() {
             return content;
         }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public String getDetails() {
+            return details;
+        }
     }
 }

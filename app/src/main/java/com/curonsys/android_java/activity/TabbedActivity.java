@@ -39,6 +39,7 @@ import com.curonsys.android_java.R;
 import com.curonsys.android_java.adapter.ContentsListRecyclerViewAdapter;
 import com.curonsys.android_java.http.RequestManager;
 import com.curonsys.android_java.model.ContentModel;
+import com.curonsys.android_java.model.TransferModel;
 
 import java.util.ArrayList;
 
@@ -86,7 +87,7 @@ public class TabbedActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "This function is not implemented yet.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -139,6 +140,8 @@ public class TabbedActivity extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private RecyclerView mRecyclerView;
+        private ContentsListRecyclerViewAdapter mContentsListAdapter;
 
         public PlaceholderFragment() {
         }
@@ -165,6 +168,7 @@ public class TabbedActivity extends AppCompatActivity {
                 TextView textView = (TextView) rootView.findViewById(R.id.section_label);
                 textView.setText(getString(R.string.section_format, index));
 
+                /*
                 SwipeRefreshLayout swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
                 swipe.setOnRefreshListener(
                         new SwipeRefreshLayout.OnRefreshListener() {
@@ -175,10 +179,15 @@ public class TabbedActivity extends AppCompatActivity {
                             }
                         }
                 );
+                */
 
             } else if (index == 2) {
                 rootView = inflater.inflate(R.layout.fragment_tabbed2, container, false);
 
+                mRecyclerView = (RecyclerView) rootView.findViewById(R.id.contents_list);
+                mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
+
+                /*
                 SwipeRefreshLayout swipe = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh2);
                 swipe.setOnRefreshListener(
                         new SwipeRefreshLayout.OnRefreshListener() {
@@ -189,6 +198,7 @@ public class TabbedActivity extends AppCompatActivity {
                             }
                         }
                 );
+                */
 
                 getContentsList(rootView);
 
@@ -206,12 +216,35 @@ public class TabbedActivity extends AppCompatActivity {
             RequestManager rm = RequestManager.getInstance();
             rm.requestGetAllContents(new RequestManager.ContentsListCallback() {
                 @Override
-                public void onResponse(ArrayList<ContentModel> response) {
-                    RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.contents_list);
-                    recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-                    recyclerView.setAdapter(new ContentsListRecyclerViewAdapter(null, response, false));
+                public void onResponse(ArrayList<ContentModel> contents) {
+                    mContentsListAdapter = new ContentsListRecyclerViewAdapter(null, contents, false);
+                    mRecyclerView.setAdapter(mContentsListAdapter);
+
+                    getThumbnails(contents);
                 }
             });
+        }
+
+        private void getThumbnails(ArrayList<ContentModel> contents) {
+            for (int i = 0; i < contents.size(); i++) {
+                String thumbname = contents.get(i).getContentName();
+                String thumbpath = contents.get(i).getThumb();
+                String thumbsuffix = thumbpath.substring(thumbpath.indexOf('.'), thumbpath.length());
+
+                final int index = i;
+                RequestManager rm = RequestManager.getInstance();
+                rm.requestDownloadFileFromStorage(thumbname, thumbpath, thumbsuffix, new RequestManager.TransferCallback() {
+                    @Override
+                    public void onResponse(TransferModel download) {
+                        ContentModel model = contents.get(index);
+                        model.setThumb(download.getPath());
+                        contents.set(index, model);
+
+                        mContentsListAdapter.notifyItemChanged(index);
+                    }
+                });
+            }
+
         }
     }
 

@@ -20,6 +20,7 @@ import com.curonsys.android_java.R;
 import com.curonsys.android_java.fragment.ContentModelDetailFragment;
 import com.curonsys.android_java.model.ContentModel;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -76,19 +77,29 @@ public class ItemDetailActivity extends AppCompatActivity {
             String itemID = getIntent().getStringExtra(ContentModelDetailFragment.ARG_ITEM_ID);
             ContentModel itemModel = (ContentModel) getIntent().getSerializableExtra(ContentModelDetailFragment.ARG_ITEM);
 
-            // set bg
-            AssetManager am = getResources().getAssets();
-            InputStream is = null;
+            String thumbpath = itemModel.getThumb();
+            String separator = thumbpath.substring(0, 7);
 
-            try {
-                is = am.open("lake.png");
-                if (is != null) {
-                    Bitmap bm = BitmapFactory.decodeStream(is);
-                    mBGImage.setImageBitmap(bm);
-                    is.close();
+            if (separator.compareTo("models/") != 0) {
+                File imgFile = new File(thumbpath);
+                if (imgFile.exists()) {
+                    Bitmap thumbBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                    mBGImage.setImageBitmap(thumbBitmap);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                AssetManager am = getResources().getAssets();
+                InputStream is = null;
+
+                try {
+                    is = am.open("lake.png");
+                    if (is != null) {
+                        Bitmap bm = BitmapFactory.decodeStream(is);
+                        mBGImage.setImageBitmap(bm);
+                        is.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             arguments.putString(ContentModelDetailFragment.ARG_ITEM_ID, itemID);

@@ -80,6 +80,10 @@ public class ContentModel implements Serializable {
         mContentId = contentid;
     }
 
+    public void setThumb(String path) {
+        mThumb = path;
+    }
+
     public String getContentId() {
         return mContentId;
     }

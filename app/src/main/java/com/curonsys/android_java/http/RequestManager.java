@@ -83,7 +83,7 @@ public class RequestManager {
 
     private AsyncHttpClient client;
     private FirebaseFirestore mFirestore;
-    private ListenerRegistration mListenerRegistration;
+    private ListenerRegistration mListenerOrders;
     private FirebaseStorage mStorage;
     UploadTask mUploadTask;
 
@@ -389,34 +389,35 @@ public class RequestManager {
         });
     }
 
-    public void requestStartCheckUpdate(/* ... */ String userid, final SuccessCallback callback) {
-        // temp
-        final DocumentReference docRef = mFirestore.collection("userid").document("SF");
-        mListenerRegistration = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
+    public void requestStartCheckUpdate(String userid, final OrderListCallback callback) {
+        mListenerOrders = mFirestore.collection("orders")
+                .whereEqualTo("status", "order")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                          @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
 
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d(TAG, "Current data: " + snapshot.getData());
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
+                        ArrayList<OrderModel> orders = new ArrayList<OrderModel>();
+                        for (QueryDocumentSnapshot doc : snapshots) {
+                            OrderModel model = new OrderModel(doc.getData());
+                            orders.add(model);
+                            callback.onResponse(orders);
+                        }
+                    }
+                });
     }
 
     public void requestStopCheckUpdate(/* ... */) {
-        if (mListenerRegistration != null) {
-            mListenerRegistration.remove();
+        if (mListenerOrders != null) {
+            mListenerOrders.remove();
         }
     }
 
-    public void requesetDownloadFileFromStorage(String name, String path, String suffix, final TransferCallback callback) {
+    public void requestDownloadFileFromStorage(String name, String path, String suffix, final TransferCallback callback) {
         StorageReference downRef = mStorage.getReference(path);
         try {
             File localFile = File.createTempFile(name, suffix);

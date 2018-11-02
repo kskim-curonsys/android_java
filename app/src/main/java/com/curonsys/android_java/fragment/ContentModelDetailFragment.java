@@ -87,26 +87,6 @@ public class ContentModelDetailFragment extends Fragment {
         mAdapter = new MyContentDetailAdapter(list);
         mRecyclerView.setAdapter(mAdapter);
 
-        /*
-        if (mItem != null) {
-            String output = "id: " + mItem.getContentId() +
-                            "\nname: " + mItem.getContentName() +
-                            "\nformat: " + mItem.getFormat() +
-                            "\nversion: " + mItem.getVersion() +
-                            "\n3d: " + mItem.get3D() +
-                            "\n";
-            String path = "path: ";
-            for (int i = 0; i < mItem.getContentUrl().size(); i++) {
-                path += "\n - " + mItem.getContentUrl().get(i);
-            }
-            if (mItem.getContentUrl().size() > 0) {
-                output += path;
-            }
-
-            ((TextView) rootView.findViewById(R.id.model_detail)).setText(output);
-        }
-        */
-
         return rootView;
     }
 }
