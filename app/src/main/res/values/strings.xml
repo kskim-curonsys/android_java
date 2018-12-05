@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">army_app</string>
+    <string name="app_name">AR Maker</string>
 
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
@@ -273,5 +273,7 @@
     <string name="title_activity_settings">Settings</string>
 
     <string name="title_activity_arcoretest">ARCore Test</string>
+
+    <string name="title_activity_trivialdrive">Trivial Drive</string>
 
 </resources>

@@ -22,7 +22,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.curonsys.android_java.R;
 import com.curonsys.android_java.activity.MarkerGenerationActivity;
 import com.curonsys.android_java.utils.DBManager;
-import com.curonsys.android_java.utils.ImageProcessingManager;
 import com.curonsys.android_java.utils.PictureManager;
 
 import java.io.FileNotFoundException;
@@ -204,9 +203,12 @@ public class ImageChoiceFragment extends Fragment{
 
         @Override
         protected Double doInBackground(Double... params) {
+            /*
             ImageProcessingManager imgManager = new ImageProcessingManager();
             double result = imgManager.sift(inputImage);
             return result;
+            */
+            return 0.0;
         }
     }
 }

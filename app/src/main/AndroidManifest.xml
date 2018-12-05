@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <uses-feature android:name="android.hardware.camera" />
 
@@ -33,6 +34,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBlhcGq5Yst_dbTmakaPdwD2bm_mMFqJ6k" />
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="optional" />
 
         <activity
             android:name=".ChooseActivity"
@@ -155,21 +159,6 @@
                 android:value="com.curonsys.android_java.activity.MarkerGenerationActivity" />
         </activity>
 
-        <service
-            android:name=".service.FetchAddressIntentService"
-            android:exported="false" />
-        <service android:name=".service.GeofenceTransitionsIntentService" />
-
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.curonsys.android_java"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
-
         <activity android:name=".activity.ImageGridActivity" />
         <activity
             android:name=".activity.SettingsActivity"
@@ -187,7 +176,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.curonsys.android_java.ChooseActivity" />
-
         </activity>
 
         <activity
@@ -222,7 +210,30 @@
                 android:value="com.curonsys.android_java.activity.ARCoreTestActivity" />
         </activity>
 
-        <meta-data android:name="com.google.ar.core" android:value="optional" />
+        <activity
+            android:name=".activity.TrivialDriveActivity"
+            android:label="@string/title_activity_trivialdrive"
+            android:parentActivityName=".ChooseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.curonsys.android_java.ChooseActivity" />
+        </activity>
+
+        <service
+            android:name=".service.FetchAddressIntentService"
+            android:exported="false" />
+        <service android:name=".service.GeofenceTransitionsIntentService" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.curonsys.android_java"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>
